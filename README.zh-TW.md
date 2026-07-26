@@ -1,8 +1,8 @@
 # Orbit demo 環境
 
-這是 [Orbit](https://github.com/iml885203/orbit) 的零套件 demo。Python HTTP
-service 在本機執行，Redis 則在 container 內執行，用來展示本機 runtime 與
-container 的混合開發環境。
+這是 [Orbit](https://github.com/iml885203/orbit) 的零套件 demo。Python
+標準函式庫 HTTP server 在本機執行，Redis 則在 container 內執行，用來展示
+本機 runtime 與 container 的混合開發環境。
 
 ## 需求
 
@@ -23,8 +23,8 @@ orbit up
 orbit status --json
 ```
 
-開啟 <http://localhost:28080>。回應會顯示本機 Python service 是否能透過
-Orbit 注入的連線設定連到 Redis container。
+開啟 <http://localhost:28080>。Dashboard 與 `orbit status --json` 會在同一份
+dependency graph 顯示本機 Python service 與 Redis container。
 
 其他常用指令：
 
@@ -36,11 +36,10 @@ orbit down
 
 ## Repo 內容
 
-- `envs/quickstart.yaml`：環境拓樸。
-- `envs/quickstart/server.py`：只使用 Python 標準函式庫的本機 service。
+- `envs/quickstart.yaml`：完整的環境拓樸。
 
-兩個檔案都放在 `envs/` 下，因為 `orbit env sync` 會把整棵目錄複製到
-`~/.orbit/envs/`，並保留相對路徑。
+Service 使用 `python3 -m http.server`，因此同步後的 YAML 本身就是完整環境，
+不需要另外 checkout source 或安裝 package。
 
 ## License
 

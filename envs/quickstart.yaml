@@ -17,15 +17,13 @@ services:
   demo-api:
     type: python
     kind: backend
-    path: ./quickstart
-    command: python3 server.py
+    path: .
+    command: python3 -m http.server 28080 --bind 127.0.0.1
     url: http://localhost:28080
     ports:
       http: 28080
     depends_on: [redis]
-    env:
-      PORT: "28080"
     health_check:
       type: http
-      path: /health
+      path: /
       port: 28080
