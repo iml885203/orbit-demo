@@ -1,0 +1,31 @@
+version: "2"
+
+settings:
+  shutdown_timeout: 10s
+  health_check_interval: 2s
+
+containers:
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      redis: "26379:6379"
+    health_check:
+      type: tcp
+      port: 26379
+
+services:
+  demo-api:
+    type: python
+    kind: backend
+    path: ./quickstart
+    command: python3 server.py
+    url: http://localhost:28080
+    ports:
+      http: 28080
+    depends_on: [redis]
+    env:
+      PORT: "28080"
+    health_check:
+      type: http
+      path: /health
+      port: 28080
