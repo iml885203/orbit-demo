@@ -1,8 +1,8 @@
 # Orbit demo 環境
 
-這是 [Orbit](https://github.com/iml885203/orbit) 的零套件 demo。Python
-標準函式庫 HTTP server 在本機執行，Redis 則在 container 內執行，用來展示
-本機 runtime 與 container 的混合開發環境。
+這是 [Orbit](https://github.com/iml885203/orbit) 的零套件 demo。本機
+Python service 會把瀏覽次數存進 Redis container，用來展示 Orbit 如何協調
+本機 runtime、container dependency 與連線資訊注入。
 
 ## 需求
 
@@ -19,15 +19,12 @@ Repo 還是 private 時，Git 也必須能向 GitHub 驗證身份。已登入 Gi
 ## 執行
 
 ```bash
-orbit init --yes \
-  --env-repo https://github.com/iml885203/orbit-demo.git \
-  --env quickstart
+orbit init --yes
 orbit up
-orbit status --json
 ```
 
-開啟 <http://localhost:28080>。Dashboard 與 `orbit status --json` 會在同一份
-dependency graph 顯示本機 Python service 與 Redis container。
+開啟 <http://localhost:28080> 並重新整理。計數器會保存在 Redis，證明
+Orbit 啟動並設定的 container dependency，確實能被本機 Python process 使用。
 
 其他常用指令：
 
@@ -40,9 +37,12 @@ orbit down
 ## Repo 內容
 
 - `envs/quickstart.yaml`：完整的環境拓樸。
+- `envs/seeds/demo/app.py`：隨環境同步、只使用 Python 標準函式庫的本機
+  service。
 
-Service 使用 `python3 -m http.server`，因此同步後的 YAML 本身就是完整環境，
-不需要另外 checkout source 或安裝 package。
+不需要執行 `pip install`；service 只使用 Python 標準函式庫。
+Orbit 會隨環境同步這個小型 source，因此 quickstart 從空目錄也能執行；
+真實專案則會把 `path` 指向自己的 checkout。
 
 ## License
 

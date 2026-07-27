@@ -17,13 +17,13 @@ services:
   demo-api:
     type: python
     kind: backend
-    path: .
-    command: python3 -m http.server 28080 --bind 127.0.0.1
+    path: seeds/demo
+    command: python3 app.py
     url: http://localhost:28080
     ports:
       http: 28080
     depends_on: [redis]
     health_check:
       type: http
-      path: /
+      path: /health
       port: 28080

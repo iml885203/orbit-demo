@@ -1,9 +1,9 @@
 # Orbit demo environment
 
-A zero-package demo for [Orbit](https://github.com/iml885203/orbit). It runs
-Python's standard-library HTTP server on the host and Redis in a container,
-showing the mixed local/container workflow without adding application
-dependencies.
+A zero-package demo for [Orbit](https://github.com/iml885203/orbit). A local
+Python service stores its visit counter in a Redis container, demonstrating
+Orbit's mixed host/container workflow and dependency injection without adding
+application packages.
 
 ## Requirements
 
@@ -22,15 +22,13 @@ packages.
 ## Run
 
 ```bash
-orbit init --yes \
-  --env-repo https://github.com/iml885203/orbit-demo.git \
-  --env quickstart
+orbit init --yes
 orbit up
-orbit status --json
 ```
 
-Open <http://localhost:28080>. The dashboard and `orbit status --json` show the
-host-side Python service and Redis container in the same dependency graph.
+Open <http://localhost:28080> and refresh it. The counter is stored in Redis,
+proving that the host-side Python process can use the container dependency
+Orbit started and configured for it.
 
 Useful follow-up commands:
 
@@ -43,9 +41,12 @@ orbit down
 ## What the repository contains
 
 - `envs/quickstart.yaml`: the complete environment graph.
+- `envs/seeds/demo/app.py`: the synced local service, implemented with
+  Python's standard library.
 
-The service uses `python3 -m http.server`, so the synced YAML remains
-self-contained and needs no separate source checkout or package installation.
+There is no `pip install`: the service uses only Python's standard library.
+Orbit syncs this tiny source file with the environment so the quickstart also
+works from an empty directory; real projects point `path` at their own checkout.
 
 ## License
 
