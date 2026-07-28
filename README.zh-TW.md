@@ -10,9 +10,6 @@ Python service 會把瀏覽次數存進 Redis container，用來展示 Orbit 如
 - Docker
 - Python 3
 
-Repo 還是 private 時，Git 也必須能向 GitHub 驗證身份。已登入 GitHub CLI
-的使用者可執行一次 `gh auth setup-git` 完成設定。
-
 `orbit init` 不會替使用者安裝 Python。Orbit 負責協調專案原本使用的工具，
 不負責管理語言 runtime 或專案套件。
 

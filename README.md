@@ -11,10 +11,6 @@ application packages.
 - Docker
 - Python 3
 
-While this repository is private, Git must also be authenticated for GitHub.
-An authenticated GitHub CLI user can configure that once with
-`gh auth setup-git`.
-
 Python is intentionally not installed by `orbit init`. Orbit coordinates the
 tools a project already uses; it does not manage language runtimes or project
 packages.
