@@ -449,6 +449,35 @@
       }
     }
 
+    function renderAttemptPending(quantity) {
+      $("attempt").className = "panel attempt visible";
+      $("attempt-title").textContent = `${quantity} item checkout in progress`;
+      $("attempt-detail").textContent = "Measuring this attempt before and after checkout.";
+      ["stock", "reservation", "order"].forEach((name) => {
+        $(`${name}-metric`).className = "metric";
+      });
+      $("stock-change").textContent = "Checking…";
+      $("reservation-change").textContent = "Checking…";
+      $("order-change").textContent = "Checking…";
+    }
+
+    function renderAttemptUnavailable(quantity) {
+      const requestedAt = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      $("attempt").className = "panel attempt visible";
+      $("attempt-title").textContent = "Checkout unavailable";
+      $("attempt-detail").textContent =
+        `${quantity} item requested at ${requestedAt}. The outcome could not be confirmed, so no deltas are claimed.`;
+      ["stock", "reservation", "order"].forEach((name) => {
+        $(`${name}-metric`).className = "metric unchanged";
+      });
+      $("stock-change").textContent = "Unknown";
+      $("reservation-change").textContent = "Unknown";
+      $("order-change").textContent = "Unknown";
+    }
+
     async function readiness() {
       try {
         const [catalog, inventory, order] = await Promise.all(
@@ -479,6 +508,7 @@
 
     async function checkout(quantity) {
       resetFlow();
+      renderAttemptPending(quantity);
       $("step-catalog").className = "step active";
       try {
         const before = await snapshot();
@@ -500,6 +530,7 @@
           $("result-detail").textContent = `${payload.error}. No new reservation or order was created.`;
           renderAttempt(before, after, quantity, false);
           renderDurable(after);
+          await readiness();
           return;
         }
         $("step-inventory").className = "step done";
@@ -510,11 +541,14 @@
         $("result-detail").textContent = `${payload.quantity} × ${payload.product.name} · $${payload.total}`;
         renderAttempt(before, after, quantity, true);
         renderDurable(after);
+        await readiness();
       } catch (error) {
+        renderAttemptUnavailable(quantity);
         $("result").className = "panel result visible failure";
         $("result-icon").textContent = "!";
         $("result-title").textContent = "A service did not respond";
         $("result-detail").innerHTML = "Run <code>orbit status</code>, then <code>orbit logs shop-order-api</code>.";
+        await readiness();
       } finally {
         buttons.forEach((button) => button.disabled = false);
       }

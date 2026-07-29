@@ -27,6 +27,11 @@ orbit open demo-shop
 量測失敗前後的庫存與 records：庫存保持不變，新增 reservation 與 order 都是
 `+0`，先前成功的 order 也會繼續顯示。
 
+若 dependency 停止回應，下一次點擊會把上一筆成功證據替換成
+**Checkout unavailable**，不會繼續誤稱舊結果是最新嘗試。頁面會把最後確認的
+order 保留在 **Durable state**、標示環境需要處理，並在 dependency 恢復且下一次
+checkout 成功後回到 ready。
+
 Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏好 port
 已被占用，整張 graph 仍能正常運作，application code 不需要重複維護那些 port。
 

@@ -29,6 +29,12 @@ reservation. **Try 99 items** measures stock and record counts before and after
 the rejected attempt: stock stays unchanged, new reservations and orders both
 remain `+0`, and the earlier successful order remains visible.
 
+If a dependency stops responding, a new click replaces the previous attempt
+with **Checkout unavailable** instead of reusing stale success evidence. The
+page keeps the last confirmed order under **Durable state**, marks the stack as
+needing attention, and returns to ready after the dependency recovers and the
+next checkout succeeds.
+
 Orbit starts the APIs in dependency order, injects their actual runtime URLs,
 and keeps the whole graph working if preferred ports are occupied. The
 application code never duplicates those selected ports.
