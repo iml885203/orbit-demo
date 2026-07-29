@@ -43,14 +43,14 @@ Useful follow-up commands:
 
 ```bash
 orbit status
+orbit doctor
 orbit logs shop-order-api
 orbit open demo-shop
-orbit inspect --json
 orbit down
 ```
 
 To move from the demo to a real checkout, follow
-[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.0.33/docs/local-first.md).
+[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.0.36/docs/local-first.md).
 The local trial starts with one project-root `orbit.yaml`; it does not require
 an environment repository or persistent Orbit settings.
 

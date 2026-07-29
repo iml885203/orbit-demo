@@ -29,6 +29,26 @@ async function eventually(predicate) {
   assert.fail("page did not reach the expected state");
 }
 
+test("beginner surfaces share one versioned adoption handoff", () => {
+  const english = readFileSync("README.md", "utf8");
+  const traditionalChinese = readFileSync("README.zh-TW.md", "utf8");
+  const page = readFileSync("envs/seeds/mini-shop/index.html", "utf8");
+  const handoffs = [
+    english.match(/orbit\/blob\/(v[^/]+)\/docs\/local-first\.md/),
+    traditionalChinese.match(/orbit\/blob\/(v[^/]+)\/docs\/local-first\.zh-TW\.md/),
+    page.match(/orbit\/blob\/(v[^/]+)\/docs\/local-first\.md/)
+  ];
+
+  assert.ok(handoffs.every(Boolean), "every beginner surface must link to the adoption guide");
+  assert.deepEqual(
+    new Set(handoffs.map((match) => match[1])),
+    new Set(["v0.0.36"]),
+    "all adoption links must match the demo's Orbit release"
+  );
+  assert.doesNotMatch(english, /orbit inspect --json/);
+  assert.doesNotMatch(traditionalChinese, /orbit inspect --json/);
+});
+
 test("a failed checkout replaces stale success while preserving durable state", async () => {
   const html = readFileSync("envs/seeds/mini-shop/index.html", "utf8");
   const source = html.match(/<script>([\s\S]*?)<\/script>/)[1]

@@ -39,14 +39,14 @@ Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏�
 
 ```bash
 orbit status
+orbit doctor
 orbit logs shop-order-api
 orbit open demo-shop
-orbit inspect --json
 orbit down
 ```
 
 要從 demo 套用到真實 checkout，請接著閱讀
-[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.0.33/docs/local-first.zh-TW.md)。
+[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.0.36/docs/local-first.zh-TW.md)。
 本機試用只從 project-root `orbit.yaml` 開始，不需要 environment repository
 或永久 Orbit settings。
 
