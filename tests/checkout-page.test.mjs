@@ -42,7 +42,7 @@ test("beginner surfaces share one versioned adoption handoff", () => {
   assert.ok(handoffs.every(Boolean), "every beginner surface must link to the adoption guide");
   assert.deepEqual(
     new Set(handoffs.map((match) => match[1])),
-    new Set(["v0.0.36"]),
+    new Set(["v0.0.37"]),
     "all adoption links must match the demo's Orbit release"
   );
   assert.doesNotMatch(english, /orbit inspect --json/);
