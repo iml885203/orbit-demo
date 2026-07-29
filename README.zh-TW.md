@@ -20,13 +20,15 @@ orbit init --yes
 orbit up
 ```
 
-開啟 <http://localhost:28080> 並重新整理。計數器會保存在 Redis，證明
+執行 `orbit open demo-api` 後重新整理頁面。計數器會保存在 Redis，證明
 Orbit 啟動並設定的 container dependency，確實能被本機 Python process 使用。
+偏好 demo port 可用時 Orbit 會照常使用；若已被占用，則會自動選擇可用 port。
 
 其他常用指令：
 
 ```bash
 orbit logs demo-api
+orbit open demo-api
 orbit inspect --json
 orbit down
 ```

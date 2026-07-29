@@ -22,14 +22,16 @@ orbit init --yes
 orbit up
 ```
 
-Open <http://localhost:28080> and refresh it. The counter is stored in Redis,
-proving that the host-side Python process can use the container dependency
-Orbit started and configured for it.
+Run `orbit open demo-api` and refresh the page. The counter is stored in
+Redis, proving that the host-side Python process can use the container
+dependency Orbit started and configured for it. Orbit keeps the preferred demo
+ports when available and selects free ones automatically when they are not.
 
 Useful follow-up commands:
 
 ```bash
 orbit logs demo-api
+orbit open demo-api
 orbit inspect --json
 orbit down
 ```

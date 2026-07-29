@@ -9,7 +9,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", "26379"))
-HTTP_PORT = int(os.environ.get("PORT", "28080"))
+HTTP_PORT = int(os.environ.get("PORT", os.environ.get("ORBIT_AUTO_PORT_DEMO_API", "28080")))
 
 
 def redis_command(*parts):
