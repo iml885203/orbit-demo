@@ -2,7 +2,7 @@ version: "2"
 
 settings:
   shutdown_timeout: 10s
-  health_check_interval: 2s
+  health_check_interval: 1s
 
 containers:
   redis:
@@ -14,16 +14,62 @@ containers:
       port: ${ORBIT_AUTO_PORT_DEMO_REDIS:-26379}
 
 services:
-  demo-api:
+  shop-catalog-api:
     type: python
     kind: backend
-    path: seeds/demo
-    command: python3 app.py
-    url: http://localhost:${ORBIT_AUTO_PORT_DEMO_API:-28080}
+    path: seeds/mini-shop
+    command: python3 catalog.py
+    url: http://localhost:${ORBIT_AUTO_PORT_SHOP_CATALOG:-28101}
     ports:
-      http: "${ORBIT_AUTO_PORT_DEMO_API:-28080}"
+      http: "${ORBIT_AUTO_PORT_SHOP_CATALOG:-28101}"
+    health_check:
+      type: http
+      path: /health
+      port: ${ORBIT_AUTO_PORT_SHOP_CATALOG:-28101}
+
+  shop-inventory-api:
+    type: python
+    kind: backend
+    path: seeds/mini-shop
+    command: python3 inventory.py
+    url: http://localhost:${ORBIT_AUTO_PORT_SHOP_INVENTORY:-28102}
+    ports:
+      http: "${ORBIT_AUTO_PORT_SHOP_INVENTORY:-28102}"
     depends_on: [redis]
     health_check:
       type: http
       path: /health
-      port: ${ORBIT_AUTO_PORT_DEMO_API:-28080}
+      port: ${ORBIT_AUTO_PORT_SHOP_INVENTORY:-28102}
+
+  shop-order-api:
+    type: python
+    kind: backend
+    path: seeds/mini-shop
+    command: python3 orders.py
+    url: http://localhost:${ORBIT_AUTO_PORT_SHOP_ORDERS:-28103}
+    ports:
+      http: "${ORBIT_AUTO_PORT_SHOP_ORDERS:-28103}"
+    depends_on: [shop-catalog-api, shop-inventory-api]
+    health_check:
+      type: http
+      path: /health
+      port: ${ORBIT_AUTO_PORT_SHOP_ORDERS:-28103}
+
+  demo-shop:
+    type: python
+    kind: frontend
+    path: seeds/mini-shop
+    command: python3 web.py
+    url: http://localhost:${ORBIT_AUTO_PORT_DEMO_SHOP:-28080}
+    ports:
+      http: "${ORBIT_AUTO_PORT_DEMO_SHOP:-28080}"
+    depends_on: [shop-catalog-api, shop-inventory-api, shop-order-api]
+    health_check:
+      type: http
+      path: /health
+      port: ${ORBIT_AUTO_PORT_DEMO_SHOP:-28080}
+
+groups:
+  mini-shop:
+    enabled: true
+    services: [shop-catalog-api, shop-inventory-api, shop-order-api, demo-shop]

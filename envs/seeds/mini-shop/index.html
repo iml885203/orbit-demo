@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orbit mini-shop</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: #080b12;
+      color: #f3f5fb;
+      --surface: rgba(18, 23, 35, .92);
+      --border: #293247;
+      --muted: #9ba6ba;
+      --accent: #a9b8ff;
+      --good: #6ee7b7;
+      --bad: #ff8c9a;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 0, rgba(92, 116, 226, .25), transparent 34rem),
+        radial-gradient(circle at 92% 22%, rgba(52, 184, 141, .12), transparent 30rem),
+        #080b12;
+    }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: wait; opacity: .6; }
+    code { color: #d6ddff; }
+
+    .shell {
+      width: min(1080px, calc(100% - 32px));
+      margin: auto;
+      padding: 56px 0 72px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+    .lede {
+      max-width: 700px;
+      margin: 20px 0 0;
+      color: #b7c0d1;
+      font-size: 18px;
+      line-height: 1.65;
+    }
+    .status {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffc86a; }
+    .status.ready { color: var(--good); border-color: rgba(110, 231, 183, .4); }
+    .status.ready .dot { background: var(--good); }
+    .status.error { color: var(--bad); border-color: rgba(255, 140, 154, .4); }
+    .status.error .dot { background: var(--bad); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, .24);
+    }
+    .action {
+      padding: clamp(28px, 5vw, 48px);
+      background:
+        linear-gradient(145deg, rgba(102, 126, 238, .16), transparent 56%),
+        var(--surface);
+    }
+    h2 { margin: 0; font-size: clamp(28px, 4vw, 43px); letter-spacing: -.035em; }
+    .action > p { max-width: 580px; color: #b7c0d1; line-height: 1.65; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; }
+    .primary, .secondary {
+      min-height: 48px;
+      padding: 0 19px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+    .primary { border: 0; background: #e8ecff; color: #111728; }
+    .secondary { border: 1px solid #3a4660; background: #171e2b; color: #e5e9f2; }
+    .primary:hover:not(:disabled) { background: white; transform: translateY(-1px); }
+    .secondary:hover:not(:disabled) { border-color: #5b6986; }
+    .hint { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
+
+    .flow { padding: 27px; }
+    .flow h2 { font-size: 18px; letter-spacing: -.01em; }
+    .step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 13px;
+      min-height: 88px;
+      padding-top: 20px;
+    }
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 58px;
+      bottom: 0;
+      left: 18px;
+      width: 1px;
+      background: var(--border);
+    }
+    .index {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #3a4660;
+      border-radius: 50%;
+      background: #121825;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .step.done .index { color: var(--good); border-color: rgba(110, 231, 183, .5); }
+    .step.active .index { color: var(--accent); border-color: rgba(169, 184, 255, .6); }
+    .step strong { display: block; margin: 7px 0 5px; font-size: 15px; }
+    .step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .result {
+      display: none;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 21px 24px;
+    }
+    .result.visible { display: grid; }
+    .result.success { border-color: rgba(110, 231, 183, .42); }
+    .result.failure { border-color: rgba(255, 140, 154, .46); }
+    .result-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: #192131;
+      font-size: 22px;
+    }
+    .result strong { display: block; margin-bottom: 5px; font-size: 17px; }
+    .result p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+    .evidence {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .evidence article {
+      min-height: 148px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(16, 21, 32, .82);
+    }
+    .evidence span {
+      display: block;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .evidence strong { display: block; margin-bottom: 7px; font-size: 18px; }
+    .evidence p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    details {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(16, 21, 32, .78);
+    }
+    summary { padding: 18px 21px; cursor: pointer; font-weight: 750; }
+    .topology { padding: 0 21px 21px; color: var(--muted); line-height: 1.75; }
+
+    @media (max-width: 760px) {
+      .shell { padding-top: 34px; }
+      header { display: block; }
+      .status { width: max-content; margin-top: 22px; }
+      .hero, .evidence { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Orbit mini-shop</p>
+        <h1>One action. Five local resources.</h1>
+        <p class="lede">Orbit started host-side services, waited for their dependencies, connected a Redis container, and selected working ports. Try the business flow—not the setup.</p>
+      </div>
+      <div class="status" id="status"><span class="dot"></span><span id="status-text">Checking the stack</span></div>
+    </header>
+
+    <section class="hero">
+      <div class="panel action">
+        <p class="eyebrow">Primary journey</p>
+        <h2>Checkout an Orbit Mug</h2>
+        <p>The order API reads the product from catalog, asks inventory to reserve stock, then commits an order linked to that reservation.</p>
+        <div class="buttons">
+          <button class="primary" id="run-success">Run checkout</button>
+          <button class="secondary" id="run-failure">Try 99 items</button>
+        </div>
+        <p class="hint">The failure path should reserve nothing and create no order.</p>
+      </div>
+      <div class="panel flow">
+        <h2>What crosses the stack</h2>
+        <div class="step" id="step-catalog"><span class="index">1</span><div><strong>Read product</strong><p>Catalog API + SQLite</p></div></div>
+        <div class="step" id="step-inventory"><span class="index">2</span><div><strong>Reserve stock</strong><p>Inventory API + SQLite + Redis</p></div></div>
+        <div class="step" id="step-order"><span class="index">3</span><div><strong>Commit order</strong><p>Order API + SQLite</p></div></div>
+      </div>
+    </section>
+
+    <section class="panel result" id="result">
+      <div class="result-icon" id="result-icon">✓</div>
+      <div><strong id="result-title"></strong><p id="result-detail"></p></div>
+    </section>
+
+    <section class="evidence">
+      <article><span>Product</span><strong id="product">Orbit Mug</strong><p id="product-detail">Waiting for catalog</p></article>
+      <article><span>Reservation</span><strong id="reservation">Not created</strong><p id="reservation-detail">Inventory has not changed</p></article>
+      <article><span>Order</span><strong id="order">Not created</strong><p id="order-detail">Run checkout to link the records</p></article>
+    </section>
+
+    <details>
+      <summary>See what Orbit is coordinating</summary>
+      <div class="topology">
+        <code>demo-shop</code> → <code>shop-order-api</code> → <code>shop-catalog-api</code> + <code>shop-inventory-api</code> → <code>redis</code><br>
+        All four applications run on your host. Redis runs in Docker. The three APIs keep their own SQLite state, and Orbit injects every runtime endpoint from the dependency graph.
+      </div>
+    </details>
+  </main>
+
+  <script>
+    const endpoints = {
+      catalog: "{{CATALOG_URL}}",
+      inventory: "{{INVENTORY_URL}}",
+      order: "{{ORDER_URL}}"
+    };
+    const $ = (id) => document.getElementById(id);
+    const buttons = [$("run-success"), $("run-failure")];
+
+    async function json(url, options) {
+      const response = await fetch(url, options);
+      const payload = await response.json();
+      if (!response.ok) throw Object.assign(new Error(payload.error || "request failed"), { payload });
+      return payload;
+    }
+
+    async function readiness() {
+      try {
+        const [catalog, inventory, order] = await Promise.all(
+          Object.values(endpoints).map((url) => json(`${url}/health`))
+        );
+        if (![catalog, inventory, order].every((item) => item.ok)) throw new Error("not ready");
+        $("status").className = "status ready";
+        $("status-text").textContent = "5 resources ready";
+        const products = await json(`${endpoints.catalog}/products`);
+        const mug = products.products[0];
+        $("product").textContent = mug.name;
+        $("product-detail").textContent = `$${mug.price} · stored in catalog SQLite`;
+      } catch (error) {
+        $("status").className = "status error";
+        $("status-text").textContent = "A dependency needs attention";
+      }
+    }
+
+    function resetFlow() {
+      ["catalog", "inventory", "order"].forEach((name) => $(`step-${name}`).className = "step");
+      $("result").className = "panel result";
+      buttons.forEach((button) => button.disabled = true);
+    }
+
+    async function checkout(quantity) {
+      resetFlow();
+      $("step-catalog").className = "step active";
+      try {
+        const response = await fetch(`${endpoints.order}/checkout`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({product_id: 1, quantity})
+        });
+        const payload = await response.json();
+        $("step-catalog").className = "step done";
+        $("step-inventory").className = "step done";
+        if (!response.ok) {
+          $("result").className = "panel result visible failure";
+          $("result-icon").textContent = "!";
+          $("result-title").textContent = "Checkout stopped safely";
+          $("result-detail").textContent = `${payload.error}. No order was committed.`;
+          $("reservation").textContent = "Not created";
+          $("reservation-detail").textContent = "Insufficient stock changed nothing";
+          $("order").textContent = "Not created";
+          $("order-detail").textContent = "The failure did not cross the commit boundary";
+          return;
+        }
+        $("step-order").className = "step done";
+        $("result").className = "panel result visible success";
+        $("result-icon").textContent = "✓";
+        $("result-title").textContent = `Order #${payload.id} confirmed`;
+        $("result-detail").textContent = `${payload.quantity} × ${payload.product.name} · $${payload.total}`;
+        $("reservation").textContent = `Reservation #${payload.reservation.id}`;
+        $("reservation-detail").textContent = `${payload.reservation.remaining} items remain`;
+        $("order").textContent = `Order #${payload.id}`;
+        $("order-detail").textContent = `Linked to reservation #${payload.reservation.id}`;
+      } catch (error) {
+        $("result").className = "panel result visible failure";
+        $("result-icon").textContent = "!";
+        $("result-title").textContent = "A service did not respond";
+        $("result-detail").innerHTML = "Run <code>orbit status</code>, then <code>orbit logs shop-order-api</code>.";
+      } finally {
+        buttons.forEach((button) => button.disabled = false);
+      }
+    }
+
+    $("run-success").addEventListener("click", () => checkout(1));
+    $("run-failure").addEventListener("click", () => checkout(99));
+    readiness();
+  </script>
+</body>
+</html>

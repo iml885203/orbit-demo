@@ -16,15 +16,68 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
-      - name: Test HTTP service
+      - name: Validate sources
         run: |
-          python -m http.server 28080 --bind 127.0.0.1 > /tmp/orbit-demo-server.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid"' EXIT
-          for attempt in 1 2 3 4 5; do
-            if curl -fsS http://localhost:28080/ > /tmp/orbit-demo-response.html; then
-              break
-            fi
-            sleep 1
-          done
-          test -s /tmp/orbit-demo-response.html
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          for source in Path("envs/seeds/mini-shop").glob("*.py"):
+              compile(source.read_text(), str(source), "exec")
+
+          class Page(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  if values.get("id"):
+                      self.ids.add(values["id"])
+
+          page = Page()
+          page.feed(Path("envs/seeds/mini-shop/index.html").read_text())
+          required = {"run-success", "run-failure", "status", "result"}
+          assert required <= page.ids, required - page.ids
+          PY
+      - name: Install the minimum supported Orbit
+        run: |
+          curl --fail --silent --show-error --location \
+            --output /usr/local/bin/orbit \
+            https://github.com/iml885203/orbit/releases/download/v0.0.23/orbit-linux-amd64
+          chmod +x /usr/local/bin/orbit
+          orbit version
+      - name: Exercise the real first-run journey with occupied ports
+        env:
+          ORBIT_HOME: ${{ runner.temp }}/orbit-home
+          ORBIT_NAMESPACE: orbit-demo-ci
+          ORBIT_DASHBOARD_PORT: "23990"
+        run: |
+          cleanup() {
+            orbit down --json >/dev/null 2>&1 || true
+            orbit daemon stop --json >/dev/null 2>&1 || true
+            kill "$port_guard_pid" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          python3 - <<'PY' &
+          import socket
+          import time
+
+          listeners = []
+          for port in (26379, 28080, 28101, 28102, 28103):
+              listener = socket.socket()
+              listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+              listener.bind(("127.0.0.1", port))
+              listener.listen()
+              listeners.append(listener)
+          time.sleep(600)
+          PY
+          port_guard_pid=$!
+
+          mkdir -p "${{ runner.temp }}/empty-workspace"
+          cd "${{ runner.temp }}/empty-workspace"
+          orbit init --yes
+          orbit env sync --path "$GITHUB_WORKSPACE" --yes
+          orbit up
+          python3 "$ORBIT_HOME/envs/seeds/mini-shop/smoke.py"

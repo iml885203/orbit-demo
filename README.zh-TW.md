@@ -1,12 +1,13 @@
-# Orbit demo 環境
+# Orbit mini-shop 環境
 
-這是 [Orbit](https://github.com/iml885203/orbit) 的零套件 demo。本機
-Python service 會把瀏覽次數存進 Redis container，用來展示 Orbit 如何協調
-本機 runtime、container dependency 與連線資訊注入。
+這是 [Orbit](https://github.com/iml885203/orbit) 預設的公開 environment。
+一次 checkout 會經過瀏覽器 app、三個在 host 執行的 Python API、三個 SQLite
+database，以及一個 Redis container。規模足以呈現 orchestration 的價值，
+同時維持零套件的 first run。
 
 ## 需求
 
-- Orbit
+- Orbit v0.0.23 或更新版本
 - Docker
 - Python 3
 
@@ -18,17 +19,21 @@ Python service 會把瀏覽次數存進 Redis container，用來展示 Orbit 如
 ```bash
 orbit init --yes
 orbit up
+orbit open demo-shop
 ```
 
-執行 `orbit open demo-api` 後重新整理頁面。計數器會保存在 Redis，證明
-Orbit 啟動並設定的 container dependency，確實能被本機 Python process 使用。
-偏好 demo port 可用時 Orbit 會照常使用；若已被占用，則會自動選擇可用 port。
+選擇 **Run checkout**。畫面會顯示從 catalog 讀取的商品、inventory 建立的
+庫存 reservation，以及與 reservation 關聯的 order。**Try 99 items** 會證明
+失敗路徑不會建立 order，也不會改變庫存。
+
+Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏好 port
+已被占用，整張 graph 仍能正常運作，application code 不需要重複維護那些 port。
 
 其他常用指令：
 
 ```bash
-orbit logs demo-api
-orbit open demo-api
+orbit logs shop-order-api
+orbit open demo-shop
 orbit inspect --json
 orbit down
 ```
@@ -36,12 +41,29 @@ orbit down
 ## Repo 內容
 
 - `envs/quickstart.yaml`：完整的環境拓樸。
-- `envs/seeds/demo/app.py`：隨環境同步、只使用 Python 標準函式庫的本機
-  service。
+- `envs/seeds/mini-shop/`：隨環境同步、只使用 Python 標準函式庫的 frontend、
+  APIs 與可重複 smoke journey。
 
-不需要執行 `pip install`；service 只使用 Python 標準函式庫。
-Orbit 會隨環境同步這個小型 source，因此 quickstart 從空目錄也能執行；
+不需要執行 `pip install`。Orbit 會隨 environment 同步 demo source，
+因此 quickstart 從空目錄也能執行；
 真實專案則會把 `path` 指向自己的 checkout。
+
+拓樸如下：
+
+```text
+demo-shop
+  ├─ shop-catalog-api ─ SQLite
+  ├─ shop-inventory-api ─ SQLite + Redis
+  └─ shop-order-api
+       ├─ shop-catalog-api
+       └─ shop-inventory-api
+```
+
+Environment 執行中時，contributor 可以驗證完整 business path：
+
+```bash
+python3 ~/.orbit/envs/seeds/mini-shop/smoke.py
+```
 
 ## License
 

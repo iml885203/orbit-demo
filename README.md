@@ -1,13 +1,13 @@
-# Orbit demo environment
+# Orbit mini-shop environment
 
-A zero-package demo for [Orbit](https://github.com/iml885203/orbit). A local
-Python service stores its visit counter in a Redis container, demonstrating
-Orbit's mixed host/container workflow and dependency injection without adding
-application packages.
+The default public environment for [Orbit](https://github.com/iml885203/orbit).
+One checkout crosses a browser app, three host-side Python APIs, three SQLite
+databases, and a Redis container. It is large enough to make orchestration
+useful while remaining a zero-package first run.
 
 ## Requirements
 
-- Orbit
+- Orbit v0.0.23 or newer
 - Docker
 - Python 3
 
@@ -20,18 +20,23 @@ packages.
 ```bash
 orbit init --yes
 orbit up
+orbit open demo-shop
 ```
 
-Run `orbit open demo-api` and refresh the page. The counter is stored in
-Redis, proving that the host-side Python process can use the container
-dependency Orbit started and configured for it. Orbit keeps the preferred demo
-ports when available and selects free ones automatically when they are not.
+Choose **Run checkout**. The page shows the product loaded from catalog, the
+stock reservation created by inventory, and the order linked to that
+reservation. **Try 99 items** proves the failure path creates no order and
+does not change stock.
+
+Orbit starts the APIs in dependency order, injects their actual runtime URLs,
+and keeps the whole graph working if preferred ports are occupied. The
+application code never duplicates those selected ports.
 
 Useful follow-up commands:
 
 ```bash
-orbit logs demo-api
-orbit open demo-api
+orbit logs shop-order-api
+orbit open demo-shop
 orbit inspect --json
 orbit down
 ```
@@ -39,12 +44,30 @@ orbit down
 ## What the repository contains
 
 - `envs/quickstart.yaml`: the complete environment graph.
-- `envs/seeds/demo/app.py`: the synced local service, implemented with
-  Python's standard library.
+- `envs/seeds/mini-shop/`: the synced frontend, APIs, and repeatable smoke
+  journey, implemented with Python's standard library.
 
-There is no `pip install`: the service uses only Python's standard library.
-Orbit syncs this tiny source file with the environment so the quickstart also
-works from an empty directory; real projects point `path` at their own checkout.
+There is no `pip install`. Orbit syncs the demo source with the environment so
+the quickstart works from an empty directory; real projects point `path` at
+their own checkouts.
+
+The topology is:
+
+```text
+demo-shop
+  ├─ shop-catalog-api ─ SQLite
+  ├─ shop-inventory-api ─ SQLite + Redis
+  └─ shop-order-api
+       ├─ shop-catalog-api
+       └─ shop-inventory-api
+```
+
+With the environment running, contributors can verify the complete business
+path:
+
+```bash
+python3 ~/.orbit/envs/seeds/mini-shop/smoke.py
+```
 
 ## License
 
