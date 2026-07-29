@@ -64,6 +64,8 @@ for name in ("shop-catalog-api", "shop-inventory-api", "shop-order-api", "demo-s
     assert health["ok"] is True, (name, health)
 
 before = load_json(urls["shop-inventory-api"] + "/stock")
+inventory_before = load_json(urls["shop-inventory-api"] + "/state")
+orders_before = load_json(urls["shop-order-api"] + "/state")
 success_status, order = post(
     urls["shop-order-api"] + "/checkout",
     {"product_id": 1, "quantity": 1},
@@ -74,6 +76,18 @@ assert order["product"]["id"] == order["reservation"]["product_id"] == 1, order
 assert order["reservation"]["quantity"] == order["quantity"] == 1, order
 
 stock_after_success = load_json(urls["shop-inventory-api"] + "/stock")
+inventory_after_success = load_json(urls["shop-inventory-api"] + "/state")
+orders_after_success = load_json(urls["shop-order-api"] + "/state")
+assert len(inventory_after_success["reservations"]) == len(
+    inventory_before["reservations"]
+) + 1
+assert len(orders_after_success["orders"]) == len(orders_before["orders"]) + 1
+assert orders_after_success["orders"][-1]["id"] == order["id"]
+assert (
+    orders_after_success["orders"][-1]["reservation_id"]
+    == inventory_after_success["reservations"][-1]["id"]
+    == order["reservation"]["id"]
+)
 failed_status, failure = post(
     urls["shop-order-api"] + "/checkout",
     {"product_id": 1, "quantity": 9999},
@@ -81,11 +95,15 @@ failed_status, failure = post(
 assert failed_status == 409, (failed_status, failure)
 assert failure["error"] == "insufficient stock", failure
 stock_after_failure = load_json(urls["shop-inventory-api"] + "/stock")
+inventory_after_failure = load_json(urls["shop-inventory-api"] + "/state")
+orders_after_failure = load_json(urls["shop-order-api"] + "/state")
 assert stock_after_failure == stock_after_success, (
     before,
     stock_after_success,
     stock_after_failure,
 )
+assert inventory_after_failure == inventory_after_success
+assert orders_after_failure == orders_after_success
 
 reservation_status, reservation = post(
     urls["shop-inventory-api"] + "/reservations",
@@ -103,5 +121,6 @@ assert load_json(urls["shop-inventory-api"] + "/stock") == stock_after_success
 print(
     "mini-shop smoke passed: "
     f"order #{order['id']} → reservation #{order['reservation']['id']}; "
-    "failure and compensation preserved stock"
+    "failure added +0 reservations and +0 orders while preserving stock; "
+    "compensation restored stock"
 )

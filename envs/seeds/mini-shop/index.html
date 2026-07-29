@@ -153,6 +153,7 @@
     }
     .step.done .index { color: var(--good); border-color: rgba(110, 231, 183, .5); }
     .step.active .index { color: var(--accent); border-color: rgba(169, 184, 255, .6); }
+    .step.failed .index { color: var(--bad); border-color: rgba(255, 140, 154, .55); }
     .step strong { display: block; margin: 7px 0 5px; font-size: 15px; }
     .step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 
@@ -179,6 +180,52 @@
     .result strong { display: block; margin-bottom: 5px; font-size: 17px; }
     .result p { margin: 0; color: var(--muted); line-height: 1.5; }
 
+    .attempt {
+      display: none;
+      margin-bottom: 18px;
+      padding: 23px 24px;
+    }
+    .attempt.visible { display: block; }
+    .attempt-heading, .evidence-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+    .attempt-heading .eyebrow, .evidence-heading .eyebrow { margin: 0 0 5px; }
+    .attempt-heading h2, .evidence-heading h2 { font-size: 21px; letter-spacing: -.02em; }
+    .attempt-heading p, .evidence-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .attempt-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .metric {
+      padding: 15px 17px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(10, 14, 23, .58);
+    }
+    .metric span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .metric strong { font-size: 20px; }
+    .metric.unchanged strong { color: var(--good); }
+
+    .evidence-heading { align-items: start; margin: 2px 2px 13px; }
+    .evidence-heading > p { max-width: 500px; text-align: right; }
     .evidence {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -215,7 +262,12 @@
       .shell { padding-top: 34px; }
       header { display: block; }
       .status { width: max-content; margin-top: 22px; }
-      .hero, .evidence { grid-template-columns: 1fr; }
+      .hero, .evidence, .attempt-metrics { grid-template-columns: 1fr; }
+      .attempt-heading, .evidence-heading { display: block; }
+      .attempt-heading > p, .evidence-heading > p {
+        margin-top: 7px;
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -243,9 +295,9 @@
       </div>
       <div class="panel flow">
         <h2>What crosses the stack</h2>
-        <div class="step" id="step-catalog"><span class="index">1</span><div><strong>Read product</strong><p>Catalog API + SQLite</p></div></div>
-        <div class="step" id="step-inventory"><span class="index">2</span><div><strong>Reserve stock</strong><p>Inventory API + SQLite + Redis</p></div></div>
-        <div class="step" id="step-order"><span class="index">3</span><div><strong>Commit order</strong><p>Order API + SQLite</p></div></div>
+        <div class="step" id="step-catalog"><span class="index">1</span><div><strong>Read product</strong><p id="step-catalog-detail">Catalog API + SQLite</p></div></div>
+        <div class="step" id="step-inventory"><span class="index">2</span><div><strong>Reserve stock</strong><p id="step-inventory-detail">Inventory API + SQLite + Redis</p></div></div>
+        <div class="step" id="step-order"><span class="index">3</span><div><strong>Commit order</strong><p id="step-order-detail">Order API + SQLite</p></div></div>
       </div>
     </section>
 
@@ -254,10 +306,26 @@
       <div><strong id="result-title"></strong><p id="result-detail"></p></div>
     </section>
 
+    <section class="panel attempt" id="attempt">
+      <div class="attempt-heading">
+        <div><p class="eyebrow">Last attempt</p><h2 id="attempt-title">Transaction evidence</h2></div>
+        <p id="attempt-detail">Measured from the APIs before and after checkout.</p>
+      </div>
+      <div class="attempt-metrics">
+        <div class="metric" id="stock-metric"><span>Available stock</span><strong id="stock-change">—</strong></div>
+        <div class="metric" id="reservation-metric"><span>New reservations</span><strong id="reservation-change">—</strong></div>
+        <div class="metric" id="order-metric"><span>New orders</span><strong id="order-change">—</strong></div>
+      </div>
+    </section>
+
+    <div class="evidence-heading">
+      <div><p class="eyebrow">Durable state</p><h2>What still exists</h2></div>
+      <p>Reloaded from inventory and orders. A rejected attempt cannot erase an earlier checkout.</p>
+    </div>
     <section class="evidence">
       <article><span>Product</span><strong id="product">Orbit Mug</strong><p id="product-detail">Waiting for catalog</p></article>
-      <article><span>Reservation</span><strong id="reservation">Not created</strong><p id="reservation-detail">Inventory has not changed</p></article>
-      <article><span>Order</span><strong id="order">Not created</strong><p id="order-detail">Run checkout to link the records</p></article>
+      <article><span>Latest reservation</span><strong id="reservation">None yet</strong><p id="reservation-detail">Run checkout to create one</p></article>
+      <article><span>Latest order</span><strong id="order">None yet</strong><p id="order-detail">Run checkout to link the records</p></article>
     </section>
 
     <details>
@@ -277,12 +345,76 @@
     };
     const $ = (id) => document.getElementById(id);
     const buttons = [$("run-success"), $("run-failure")];
+    const stepDefaults = {
+      catalog: "Catalog API + SQLite",
+      inventory: "Inventory API + SQLite + Redis",
+      order: "Order API + SQLite"
+    };
 
     async function json(url, options) {
       const response = await fetch(url, options);
       const payload = await response.json();
       if (!response.ok) throw Object.assign(new Error(payload.error || "request failed"), { payload });
       return payload;
+    }
+
+    async function snapshot() {
+      const [inventory, orders] = await Promise.all([
+        json(`${endpoints.inventory}/state`),
+        json(`${endpoints.order}/state`)
+      ]);
+      return {inventory, orders};
+    }
+
+    function available(state) {
+      return state.inventory.stock.find((item) => item.product_id === 1).available;
+    }
+
+    function renderDurable(state) {
+      const latestOrder = state.orders.orders.at(-1);
+      if (!latestOrder) {
+        $("reservation").textContent = "None yet";
+        $("reservation-detail").textContent = `${available(state)} items currently available`;
+        $("order").textContent = "None yet";
+        $("order-detail").textContent = "Run checkout to link the records";
+        return;
+      }
+      const reservation = state.inventory.reservations.find(
+        (item) => item.id === latestOrder.reservation_id
+      );
+      $("reservation").textContent = `Reservation #${latestOrder.reservation_id}`;
+      $("reservation-detail").textContent = reservation
+        ? `${reservation.quantity} item reserved · ${available(state)} available now`
+        : `${available(state)} items currently available`;
+      $("order").textContent = `Order #${latestOrder.id}`;
+      $("order-detail").textContent = `Persisted · linked to reservation #${latestOrder.reservation_id}`;
+    }
+
+    function renderAttempt(before, after, quantity, accepted) {
+      const stockBefore = available(before);
+      const stockAfter = available(after);
+      const reservationsAdded =
+        after.inventory.reservations.length - before.inventory.reservations.length;
+      const ordersAdded = after.orders.orders.length - before.orders.orders.length;
+
+      $("attempt").className = "panel attempt visible";
+      $("attempt-title").textContent = accepted
+        ? `${quantity} item checkout committed`
+        : `${quantity} item checkout rejected`;
+      $("attempt-detail").textContent = accepted
+        ? "The reservation and order were both persisted."
+        : "Insufficient stock was rejected before either write.";
+      $("stock-change").textContent = `${stockBefore} → ${stockAfter}`;
+      $("reservation-change").textContent = `+${reservationsAdded}`;
+      $("order-change").textContent = `+${ordersAdded}`;
+      ["stock", "reservation", "order"].forEach((name) => {
+        $(`${name}-metric`).className = "metric";
+      });
+      if (!accepted) {
+        ["stock", "reservation", "order"].forEach((name) => {
+          $(`${name}-metric`).className = "metric unchanged";
+        });
+      }
     }
 
     async function readiness() {
@@ -297,6 +429,7 @@
         const mug = products.products[0];
         $("product").textContent = mug.name;
         $("product-detail").textContent = `$${mug.price} · stored in catalog SQLite`;
+        renderDurable(await snapshot());
       } catch (error) {
         $("status").className = "status error";
         $("status-text").textContent = "A dependency needs attention";
@@ -304,7 +437,10 @@
     }
 
     function resetFlow() {
-      ["catalog", "inventory", "order"].forEach((name) => $(`step-${name}`).className = "step");
+      ["catalog", "inventory", "order"].forEach((name) => {
+        $(`step-${name}`).className = "step";
+        $(`step-${name}-detail`).textContent = stepDefaults[name];
+      });
       $("result").className = "panel result";
       buttons.forEach((button) => button.disabled = true);
     }
@@ -313,34 +449,35 @@
       resetFlow();
       $("step-catalog").className = "step active";
       try {
+        const before = await snapshot();
         const response = await fetch(`${endpoints.order}/checkout`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({product_id: 1, quantity})
         });
         const payload = await response.json();
+        const after = await snapshot();
         $("step-catalog").className = "step done";
-        $("step-inventory").className = "step done";
         if (!response.ok) {
+          $("step-inventory").className = "step failed";
+          $("step-inventory-detail").textContent = "Rejected: insufficient stock";
+          $("step-order-detail").textContent = "Skipped · nothing committed";
           $("result").className = "panel result visible failure";
           $("result-icon").textContent = "!";
           $("result-title").textContent = "Checkout stopped safely";
-          $("result-detail").textContent = `${payload.error}. No order was committed.`;
-          $("reservation").textContent = "Not created";
-          $("reservation-detail").textContent = "Insufficient stock changed nothing";
-          $("order").textContent = "Not created";
-          $("order-detail").textContent = "The failure did not cross the commit boundary";
+          $("result-detail").textContent = `${payload.error}. No new reservation or order was created.`;
+          renderAttempt(before, after, quantity, false);
+          renderDurable(after);
           return;
         }
+        $("step-inventory").className = "step done";
         $("step-order").className = "step done";
         $("result").className = "panel result visible success";
         $("result-icon").textContent = "✓";
         $("result-title").textContent = `Order #${payload.id} confirmed`;
         $("result-detail").textContent = `${payload.quantity} × ${payload.product.name} · $${payload.total}`;
-        $("reservation").textContent = `Reservation #${payload.reservation.id}`;
-        $("reservation-detail").textContent = `${payload.reservation.remaining} items remain`;
-        $("order").textContent = `Order #${payload.id}`;
-        $("order-detail").textContent = `Linked to reservation #${payload.reservation.id}`;
+        renderAttempt(before, after, quantity, true);
+        renderDurable(after);
       } catch (error) {
         $("result").className = "panel result visible failure";
         $("result-icon").textContent = "!";

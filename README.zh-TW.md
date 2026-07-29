@@ -23,8 +23,9 @@ orbit open demo-shop
 ```
 
 選擇 **Run checkout**。畫面會顯示從 catalog 讀取的商品、inventory 建立的
-庫存 reservation，以及與 reservation 關聯的 order。**Try 99 items** 會證明
-失敗路徑不會建立 order，也不會改變庫存。
+庫存 reservation，以及與 reservation 關聯的 order。**Try 99 items** 會重新
+量測失敗前後的庫存與 records：庫存保持不變，新增 reservation 與 order 都是
+`+0`，先前成功的 order 也會繼續顯示。
 
 Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏好 port
 已被占用，整張 graph 仍能正常運作，application code 不需要重複維護那些 port。

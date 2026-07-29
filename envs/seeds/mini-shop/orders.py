@@ -25,6 +25,28 @@ def prepare():
         )
 
 
+def state():
+    with connect() as database:
+        rows = database.execute(
+            "SELECT id, product_id, product_name, quantity, total, "
+            "reservation_id, status FROM orders ORDER BY id"
+        ).fetchall()
+    return {
+        "orders": [
+            {
+                "id": row[0],
+                "product_id": row[1],
+                "product_name": row[2],
+                "quantity": row[3],
+                "total": row[4],
+                "reservation_id": row[5],
+                "status": row[6],
+            }
+            for row in rows
+        ]
+    }
+
+
 def create_order(product_id, quantity):
     product = get_json("%s/products/%d" % (CATALOG_URL, product_id))
     status, reservation = post_json(
@@ -74,6 +96,9 @@ class Handler(JSONHandler, BaseHTTPRequestHandler):
                     "dependencies": ["shop-catalog-api", "shop-inventory-api"],
                 },
             )
+            return
+        if self.path == "/state":
+            send_json(self, HTTPStatus.OK, state())
             return
         send_json(self, HTTPStatus.NOT_FOUND, {"error": "not found"})
 

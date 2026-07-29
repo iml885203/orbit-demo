@@ -37,9 +37,27 @@ jobs:
 
           page = Page()
           page.feed(Path("envs/seeds/mini-shop/index.html").read_text())
-          required = {"run-success", "run-failure", "status", "result"}
+          required = {
+              "run-success",
+              "run-failure",
+              "status",
+              "result",
+              "attempt",
+              "stock-change",
+              "reservation-change",
+              "order-change",
+          }
           assert required <= page.ids, required - page.ids
           PY
+          node - <<'JS'
+          const fs = require("fs");
+          const html = fs.readFileSync("envs/seeds/mini-shop/index.html", "utf8");
+          const source = html.match(/<script>([\s\S]*?)<\/script>/)[1]
+            .replaceAll("{{CATALOG_URL}}", "http://127.0.0.1:1")
+            .replaceAll("{{INVENTORY_URL}}", "http://127.0.0.1:2")
+            .replaceAll("{{ORDER_URL}}", "http://127.0.0.1:3");
+          new Function(source);
+          JS
       - name: Install the minimum supported Orbit
         run: |
           curl --fail --silent --show-error --location \

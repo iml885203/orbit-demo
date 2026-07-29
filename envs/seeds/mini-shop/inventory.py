@@ -59,6 +59,26 @@ def snapshot():
     return [{"product_id": row[0], "available": row[1]} for row in rows]
 
 
+def state():
+    with connect() as database:
+        rows = database.execute(
+            "SELECT id, product_id, quantity, status "
+            "FROM reservations ORDER BY id"
+        ).fetchall()
+    return {
+        "stock": snapshot(),
+        "reservations": [
+            {
+                "id": row[0],
+                "product_id": row[1],
+                "quantity": row[2],
+                "status": row[3],
+            }
+            for row in rows
+        ],
+    }
+
+
 def reserve(product_id, quantity):
     if quantity <= 0:
         return None, "quantity must be positive"
@@ -125,6 +145,9 @@ class Handler(JSONHandler, BaseHTTPRequestHandler):
             return
         if self.path == "/stock":
             send_json(self, HTTPStatus.OK, {"stock": snapshot()})
+            return
+        if self.path == "/state":
+            send_json(self, HTTPStatus.OK, state())
             return
         send_json(self, HTTPStatus.NOT_FOUND, {"error": "not found"})
 

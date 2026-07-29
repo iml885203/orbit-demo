@@ -25,8 +25,9 @@ orbit open demo-shop
 
 Choose **Run checkout**. The page shows the product loaded from catalog, the
 stock reservation created by inventory, and the order linked to that
-reservation. **Try 99 items** proves the failure path creates no order and
-does not change stock.
+reservation. **Try 99 items** measures stock and record counts before and after
+the rejected attempt: stock stays unchanged, new reservations and orders both
+remain `+0`, and the earlier successful order remains visible.
 
 Orbit starts the APIs in dependency order, injects their actual runtime URLs,
 and keeps the whole graph working if preferred ports are occupied. The
