@@ -42,6 +42,11 @@ orbit inspect --json
 orbit down
 ```
 
+To move from the demo to a real checkout, follow
+[Use Orbit with your project](https://github.com/iml885203/orbit/blob/main/docs/local-first.md).
+The local trial starts with one project-root `orbit.yaml`; it does not require
+an environment repository or persistent Orbit settings.
+
 ## What the repository contains
 
 - `envs/quickstart.yaml`: the complete environment graph.

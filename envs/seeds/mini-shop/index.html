@@ -257,6 +257,27 @@
     }
     summary { padding: 18px 21px; cursor: pointer; font-weight: 750; }
     .topology { padding: 0 21px 21px; color: var(--muted); line-height: 1.75; }
+    .next-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      margin-top: 18px;
+      padding: 24px;
+    }
+    .next-step h2 { margin-bottom: 7px; font-size: 21px; }
+    .next-step p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .next-step a {
+      flex: 0 0 auto;
+      min-height: 48px;
+      padding: 13px 19px;
+      border-radius: 12px;
+      background: #e8ecff;
+      color: #111728;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .next-step a:hover { background: white; transform: translateY(-1px); }
 
     @media (max-width: 760px) {
       .shell { padding-top: 34px; }
@@ -268,6 +289,8 @@
         margin-top: 7px;
         text-align: left;
       }
+      .next-step { display: block; }
+      .next-step a { display: inline-block; margin-top: 18px; }
     }
   </style>
 </head>
@@ -335,6 +358,15 @@
         All four applications run on your host. Redis runs in Docker. The three APIs keep their own SQLite state, and Orbit injects every runtime endpoint from the dependency graph.
       </div>
     </details>
+
+    <section class="panel next-step">
+      <div>
+        <p class="eyebrow">Use it with your project</p>
+        <h2>Start with one orbit.yaml</h2>
+        <p>No environment repository or persistent setup is required for the local trial.</p>
+      </div>
+      <a id="adopt-project" href="https://github.com/iml885203/orbit/blob/main/docs/local-first.md">Open the 10-minute guide</a>
+    </section>
   </main>
 
   <script>

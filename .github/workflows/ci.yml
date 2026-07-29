@@ -46,6 +46,7 @@ jobs:
               "stock-change",
               "reservation-change",
               "order-change",
+              "adopt-project",
           }
           assert required <= page.ids, required - page.ids
           PY
