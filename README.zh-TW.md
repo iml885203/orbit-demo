@@ -38,6 +38,7 @@ Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏�
 其他常用指令：
 
 ```bash
+orbit status
 orbit logs shop-order-api
 orbit open demo-shop
 orbit inspect --json

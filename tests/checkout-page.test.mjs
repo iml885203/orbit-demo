@@ -94,6 +94,8 @@ test("a failed checkout replaces stale success while preserving durable state", 
   await context.checkout(1);
 
   assert.equal(elements.get("attempt-title").textContent, "Checkout unavailable");
+  assert.match(elements.get("result-detail").innerHTML, /orbit status/);
+  assert.doesNotMatch(elements.get("result-detail").innerHTML, /shop-order-api/);
   assert.match(elements.get("attempt-detail").textContent, /1 item requested at/);
   assert.match(elements.get("attempt-detail").textContent, /no deltas are claimed/);
   assert.equal(elements.get("stock-change").textContent, "Unknown");

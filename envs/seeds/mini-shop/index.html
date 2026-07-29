@@ -547,7 +547,7 @@
         $("result").className = "panel result visible failure";
         $("result-icon").textContent = "!";
         $("result-title").textContent = "A service did not respond";
-        $("result-detail").innerHTML = "Run <code>orbit status</code>, then <code>orbit logs shop-order-api</code>.";
+        $("result-detail").innerHTML = "Run <code>orbit status</code>. Orbit will name the blocked service and the next recovery command.";
         await readiness();
       } finally {
         buttons.forEach((button) => button.disabled = false);

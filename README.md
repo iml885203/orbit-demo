@@ -42,6 +42,7 @@ application code never duplicates those selected ports.
 Useful follow-up commands:
 
 ```bash
+orbit status
 orbit logs shop-order-api
 orbit open demo-shop
 orbit inspect --json
