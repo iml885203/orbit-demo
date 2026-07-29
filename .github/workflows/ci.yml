@@ -71,11 +71,14 @@ jobs:
           JS
           node --test tests/*.test.mjs
       - name: Install the paired Orbit preview
+        env:
+          ORBIT_VERSION: v0.0.41
         run: |
           if ! curl --fail --silent --show-error --location \
             --output /usr/local/bin/orbit \
-            https://github.com/iml885203/orbit/releases/download/v0.0.41/orbit-linux-amd64; then
-            git clone --depth 1 https://github.com/iml885203/orbit.git orbit-source
+            "https://github.com/iml885203/orbit/releases/download/${ORBIT_VERSION}/orbit-linux-amd64"; then
+            git clone --depth 1 --branch "$ORBIT_VERSION" \
+              https://github.com/iml885203/orbit.git orbit-source
             pnpm --dir orbit-source/ui install --frozen-lockfile
             make -C orbit-source build
             cp orbit-source/bin/orbit /usr/local/bin/orbit
