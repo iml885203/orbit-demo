@@ -7,7 +7,7 @@ database，以及一個 Redis container。規模足以呈現 orchestration 的�
 
 ## 需求
 
-- Orbit v0.2.0 或更新版本
+- Orbit v0.3.0 或更新版本
 - Docker
 - Python 3
 
@@ -46,7 +46,7 @@ orbit down
 ```
 
 要從 demo 套用到真實 checkout，請接著閱讀
-[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.2.0/docs/local-first.zh-TW.md)。
+[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.3.0/docs/local-first.zh-TW.md)。
 本機試用只從 project-root `orbit.yaml` 開始，不需要 environment repository
 或永久 Orbit settings。
 
