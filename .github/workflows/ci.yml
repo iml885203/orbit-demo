@@ -72,7 +72,7 @@ jobs:
           node --test tests/*.test.mjs
       - name: Install the paired Orbit preview
         env:
-          ORBIT_VERSION: v0.3.0
+          ORBIT_VERSION: v0.4.0
         run: |
           if ! curl --fail --silent --show-error --location \
             --output /usr/local/bin/orbit \

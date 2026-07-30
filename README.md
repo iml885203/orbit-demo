@@ -7,7 +7,7 @@ useful while remaining a zero-package first run.
 
 ## Requirements
 
-- Orbit v0.3.0 or newer
+- Orbit v0.4.0 or newer
 - Docker
 - Python 3
 
@@ -50,7 +50,7 @@ orbit down
 ```
 
 To move from the demo to a real checkout, follow
-[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.3.0/docs/local-first.md).
+[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.4.0/docs/local-first.md).
 The local trial starts with one project-root `orbit.yaml`; it does not require
 an environment repository or persistent Orbit settings.
 
