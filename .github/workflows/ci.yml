@@ -72,7 +72,7 @@ jobs:
           node --test tests/*.test.mjs
       - name: Install the paired Orbit preview
         env:
-          ORBIT_VERSION: v0.0.44
+          ORBIT_VERSION: v0.2.0
         run: |
           if ! curl --fail --silent --show-error --location \
             --output /usr/local/bin/orbit \
@@ -84,7 +84,15 @@ jobs:
             cp orbit-source/bin/orbit /usr/local/bin/orbit
           fi
           chmod +x /usr/local/bin/orbit
-          orbit version
+          actual_version="$(
+            orbit version --json |
+              python3 -c 'import json, sys; print(json.load(sys.stdin)["data"]["version"].split()[0])'
+          )"
+          if [ "$actual_version" != "$ORBIT_VERSION" ]; then
+            echo "paired demo expected $ORBIT_VERSION, installed $actual_version" >&2
+            exit 1
+          fi
+          echo "Paired Orbit version: $actual_version"
       - name: Exercise the real first-run journey with occupied ports
         env:
           ORBIT_HOME: ${{ runner.temp }}/orbit-home
