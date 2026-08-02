@@ -32,8 +32,10 @@ jobs:
           from html.parser import HTMLParser
           from pathlib import Path
 
-          for source in Path("envs/seeds/mini-shop").glob("*.py"):
+          for source in Path("apps").glob("*.py"):
               compile(source.read_text(), str(source), "exec")
+          smoke = Path("scripts/smoke.py")
+          compile(smoke.read_text(), str(smoke), "exec")
 
           class Page(HTMLParser):
               def __init__(self):
@@ -46,7 +48,7 @@ jobs:
                       self.ids.add(values["id"])
 
           page = Page()
-          page.feed(Path("envs/seeds/mini-shop/index.html").read_text())
+          page.feed(Path("apps/index.html").read_text())
           required = {
               "run-success",
               "run-failure",
@@ -62,7 +64,7 @@ jobs:
           PY
           node - <<'JS'
           const fs = require("fs");
-          const html = fs.readFileSync("envs/seeds/mini-shop/index.html", "utf8");
+          const html = fs.readFileSync("apps/index.html", "utf8");
           const source = html.match(/<script>([\s\S]*?)<\/script>/)[1]
             .replaceAll("{{CATALOG_URL}}", "http://127.0.0.1:1")
             .replaceAll("{{INVENTORY_URL}}", "http://127.0.0.1:2")
@@ -70,9 +72,29 @@ jobs:
           new Function(source);
           JS
           node --test tests/*.test.mjs
+      - name: Exercise the manual runtime journey without Orbit
+        env:
+          DATA_DIR: ${{ runner.temp }}/manual-data
+        run: |
+          cleanup() {
+            kill "$runner_pid" >/dev/null 2>&1 || true
+            docker rm -f mini-shop-redis >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          ./scripts/run-local.sh &
+          runner_pid=$!
+          timeout 120 bash -c '
+            for port in 28101 28102 28103 28080; do
+              until curl -fsS "http://127.0.0.1:$port/health" >/dev/null 2>&1; do
+                sleep 1
+              done
+            done
+          '
+          python3 scripts/smoke.py
       - name: Install the paired Orbit preview
         env:
-          ORBIT_VERSION: v0.4.0
+          ORBIT_VERSION: v0.5.0
         run: |
           if ! curl --fail --silent --show-error --location \
             --output /usr/local/bin/orbit \
@@ -93,7 +115,7 @@ jobs:
             exit 1
           fi
           echo "Paired Orbit version: $actual_version"
-      - name: Exercise the real first-run journey with occupied ports
+      - name: Exercise the Orbit journey with occupied ports
         env:
           ORBIT_HOME: ${{ runner.temp }}/orbit-home
           ORBIT_NAMESPACE: orbit-demo-ci
@@ -121,9 +143,45 @@ jobs:
           PY
           port_guard_pid=$!
 
-          mkdir -p "${{ runner.temp }}/empty-workspace"
-          cd "${{ runner.temp }}/empty-workspace"
-          orbit init --yes
-          orbit env sync --path "$GITHUB_WORKSPACE" --yes
           orbit up
-          python3 "$ORBIT_HOME/envs/seeds/mini-shop/smoke.py"
+          orbit status --json > "${{ runner.temp }}/status.json"
+          python3 - "${{ runner.temp }}" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          temp = Path(sys.argv[1])
+          status = json.loads((temp / "status.json").read_text())
+          assert status["ok"] is True, status
+          resources = {
+              resource["name"]: resource
+              for resource in status["data"]["resources"]
+          }
+          expected = {
+              "demo-shop",
+              "shop-catalog-api",
+              "shop-inventory-api",
+              "shop-order-api",
+              "redis",
+          }
+          assert expected == resources.keys(), resources.keys()
+          assert all(
+              resource["state"] == "healthy" for resource in resources.values()
+          ), resources
+          env_names = {
+              "demo-shop": "DEMO_SHOP_URL",
+              "shop-catalog-api": "SHOP_CATALOG_API_URL",
+              "shop-inventory-api": "SHOP_INVENTORY_API_URL",
+              "shop-order-api": "SHOP_ORDER_API_URL",
+          }
+          (temp / "urls.env").write_text(
+              "".join(
+                  f"{env_names[name]}={resources[name]['url']}\n"
+                  for name in env_names
+              )
+          )
+          PY
+          set -a
+          . "${{ runner.temp }}/urls.env"
+          set +a
+          python3 scripts/smoke.py

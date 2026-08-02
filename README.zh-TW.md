@@ -1,26 +1,61 @@
-# Orbit mini-shop 環境
+# Orbit mini-shop demo
 
-這是 [Orbit](https://github.com/iml885203/orbit) 預設的公開 environment。
-一次 checkout 會經過瀏覽器 app、三個在 host 執行的 Python API、三個 SQLite
-database，以及一個 Redis container。規模足以呈現 orchestration 的價值，
-同時維持零套件的 first run。
+一個小而完整的商店應用程式：一個瀏覽器 app、三個 Python API、三個 SQLite
+database，以及一個 Redis container。它是
+[Orbit](https://github.com/iml885203/orbit) 的公開 demo，但應用程式本身
+不依賴 Orbit——每個 service 都只用 Python 標準函式庫，設定全部走一般的
+環境變數並有 localhost 預設值。你可以手動啟動 runtime，也可以交給 Orbit
+協調。
 
 ## 需求
 
-- Orbit v0.5.0 或更新版本
-- Docker
 - Python 3
+- Docker
+- [Orbit](https://github.com/iml885203/orbit) v0.5.0 或更新版本（只有
+  Orbit 管理的路徑需要）
 
-`orbit init` 不會替使用者安裝 Python。Orbit 負責協調專案原本使用的工具，
-不負責管理語言 runtime 或專案套件。
+不需要 `pip install`；demo 只使用 Python 標準函式庫。
 
-## 執行
+## 用 Orbit 執行
 
 ```bash
-orbit init --yes
+git clone https://github.com/iml885203/orbit-demo.git
+cd orbit-demo
 orbit up
 orbit open demo-shop
 ```
+
+Orbit 會讀取 project-root 的 `orbit.yaml`、依 dependency 順序啟動 API、
+注入實際 runtime URL；即使偏好 port 已被占用，整張 graph 仍能正常運作，
+application code 不需要重複維護那些 port。
+
+其他常用指令：
+
+```bash
+orbit status
+orbit doctor
+orbit logs shop-order-api
+orbit down
+```
+
+## 不用 Orbit 執行
+
+```bash
+./scripts/run-local.sh
+```
+
+這個 script 會在 Docker 裡啟動 Redis，並用預設 port 啟動四個 service，
+商店會在 <http://127.0.0.1:28080>。Ctrl-C 會停止全部。也可以自己逐個啟動：
+
+```bash
+docker run -d --name mini-shop-redis -p 26379:6379 redis:7.4-alpine
+python3 apps/catalog.py &
+python3 apps/inventory.py &
+python3 apps/orders.py &
+python3 apps/web.py &
+```
+
+## Demo journey
 
 選擇 **Run checkout**。畫面會顯示從 catalog 讀取的商品、inventory 建立的
 庫存 reservation，以及與 reservation 關聯的 order。**Try 99 items** 會重新
@@ -32,33 +67,22 @@ orbit open demo-shop
 order 保留在 **Durable state**、標示環境需要處理，並在 dependency 恢復且下一次
 checkout 成功後回到 ready。
 
-Orbit 會依 dependency 順序啟動 API、注入實際 runtime URL；即使偏好 port
-已被占用，整張 graph 仍能正常運作，application code 不需要重複維護那些 port。
-
-其他常用指令：
+不論用哪種方式啟動，都可以驗證完整 business path：
 
 ```bash
-orbit status
-orbit doctor
-orbit logs shop-order-api
-orbit open demo-shop
-orbit down
+python3 scripts/smoke.py
 ```
 
-要從 demo 套用到真實 checkout，請接著閱讀
-[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.5.0/docs/local-first.zh-TW.md)。
-本機試用只從 project-root `orbit.yaml` 開始，不需要 environment repository
-或永久 Orbit settings。
+smoke script 會從 `DEMO_SHOP_URL`、`SHOP_CATALOG_API_URL`、
+`SHOP_INVENTORY_API_URL`、`SHOP_ORDER_API_URL` 讀取 service URL，
+沒有設定時使用預設的本機 port。
 
 ## Repo 內容
 
-- `envs/quickstart.yaml`：完整的環境拓樸。
-- `envs/seeds/mini-shop/`：隨環境同步、只使用 Python 標準函式庫的 frontend、
-  APIs 與可重複 smoke journey。
-
-不需要執行 `pip install`。Orbit 會隨 environment 同步 demo source，
-因此 quickstart 從空目錄也能執行；
-真實專案則會把 `path` 指向自己的 checkout。
+- `orbit.yaml`：Orbit 管理路徑使用的環境拓樸。
+- `apps/`：只使用 Python 標準函式庫的 frontend 與 APIs。
+- `scripts/run-local.sh`：不透過 Orbit 啟動全部服務。
+- `scripts/smoke.py`：可重複執行的 smoke journey。
 
 拓樸如下：
 
@@ -71,11 +95,10 @@ demo-shop
        └─ shop-inventory-api
 ```
 
-Environment 執行中時，contributor 可以驗證完整 business path：
-
-```bash
-python3 ~/.orbit/envs/seeds/mini-shop/smoke.py
-```
+要從 demo 套用到自己的專案，請接著閱讀
+[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.5.0/docs/local-first.zh-TW.md)。
+本機試用和這個 repo 一樣，只從 project-root `orbit.yaml` 開始，不需要
+environment repository 或永久 Orbit settings。
 
 ## License
 

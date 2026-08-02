@@ -6,8 +6,8 @@ from urllib import error, request
 
 
 def data_path(name):
-    orbit_home = Path(os.environ.get("ORBIT_HOME", Path.home() / ".orbit"))
-    directory = orbit_home / "demo-data" / "mini-shop"
+    default = Path(__file__).resolve().parent.parent / "data"
+    directory = Path(os.environ.get("DATA_DIR", default))
     directory.mkdir(parents=True, exist_ok=True)
     return directory / name
 

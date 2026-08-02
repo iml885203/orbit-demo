@@ -32,7 +32,7 @@ async function eventually(predicate) {
 test("beginner surfaces share one versioned adoption handoff", () => {
   const english = readFileSync("README.md", "utf8");
   const traditionalChinese = readFileSync("README.zh-TW.md", "utf8");
-  const page = readFileSync("envs/seeds/mini-shop/index.html", "utf8");
+  const page = readFileSync("apps/index.html", "utf8");
   const handoffs = [
     english.match(/orbit\/blob\/(v[^/]+)\/docs\/local-first\.md/),
     traditionalChinese.match(/orbit\/blob\/(v[^/]+)\/docs\/local-first\.zh-TW\.md/),
@@ -50,7 +50,7 @@ test("beginner surfaces share one versioned adoption handoff", () => {
 });
 
 test("a failed checkout replaces stale success while preserving durable state", async () => {
-  const html = readFileSync("envs/seeds/mini-shop/index.html", "utf8");
+  const html = readFileSync("apps/index.html", "utf8");
   const source = html.match(/<script>([\s\S]*?)<\/script>/)[1]
     .replaceAll("{{CATALOG_URL}}", "http://catalog")
     .replaceAll("{{INVENTORY_URL}}", "http://inventory")

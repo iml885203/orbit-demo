@@ -18,7 +18,7 @@ services:
   shop-catalog-api:
     type: python
     kind: backend
-    path: seeds/mini-shop
+    path: ./apps
     command: python3 catalog.py
     ports:
       http:
@@ -30,7 +30,7 @@ services:
   shop-inventory-api:
     type: python
     kind: backend
-    path: seeds/mini-shop
+    path: ./apps
     command: python3 inventory.py
     ports:
       http:
@@ -43,7 +43,7 @@ services:
   shop-order-api:
     type: python
     kind: backend
-    path: seeds/mini-shop
+    path: ./apps
     command: python3 orders.py
     ports:
       http:
@@ -56,7 +56,7 @@ services:
   demo-shop:
     type: python
     kind: frontend
-    path: seeds/mini-shop
+    path: ./apps
     command: python3 web.py
     ports:
       http:

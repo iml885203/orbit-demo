@@ -1,6 +1,5 @@
 import json
 import os
-import subprocess
 from urllib import error, request
 
 
@@ -28,31 +27,19 @@ def post(url, payload):
         return response.code, json.load(response)
 
 
-orbit_command = ["orbit"]
-if os.environ.get("ORBIT_CONFIG"):
-    orbit_command.extend(["-c", os.environ["ORBIT_CONFIG"]])
-status = json.loads(
-    subprocess.check_output(orbit_command + ["status", "--json"], text=True)
-)
-assert status["ok"] is True, status
-resources = {
-    resource["name"]: resource
-    for resource in status["data"]["resources"]
-}
-expected = {
-    "demo-shop",
-    "shop-catalog-api",
-    "shop-inventory-api",
-    "shop-order-api",
-    "redis",
-}
-assert expected == resources.keys(), resources.keys()
-assert all(resource["state"] == "healthy" for resource in resources.values()), resources
-
 urls = {
-    name: resources[name]["url"]
-    for name in expected - {"redis"}
+    "demo-shop": os.environ.get("DEMO_SHOP_URL", "http://127.0.0.1:28080"),
+    "shop-catalog-api": os.environ.get(
+        "SHOP_CATALOG_API_URL", "http://127.0.0.1:28101"
+    ),
+    "shop-inventory-api": os.environ.get(
+        "SHOP_INVENTORY_API_URL", "http://127.0.0.1:28102"
+    ),
+    "shop-order-api": os.environ.get(
+        "SHOP_ORDER_API_URL", "http://127.0.0.1:28103"
+    ),
 }
+
 page, content_type = load(urls["demo-shop"])
 assert content_type == "text/html", content_type
 page = page.decode()
