@@ -142,6 +142,20 @@ jobs:
           time.sleep(600)
           PY
           port_guard_pid=$!
+          timeout 60 python3 - <<'PY'
+          import socket
+          import time
+
+          for port in (26379, 28080, 28101, 28102, 28103):
+              while True:
+                  probe = socket.socket()
+                  probe.settimeout(0.2)
+                  if probe.connect_ex(("127.0.0.1", port)) == 0:
+                      probe.close()
+                      break
+                  probe.close()
+                  time.sleep(0.2)
+          PY
 
           orbit up
           orbit status --json > "${{ runner.temp }}/status.json"
