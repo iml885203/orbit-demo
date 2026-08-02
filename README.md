@@ -11,7 +11,7 @@ You can start the runtimes by hand, or let Orbit orchestrate them.
 
 - Python 3
 - Docker
-- [Orbit](https://github.com/iml885203/orbit) v0.6.0 or newer (only for the
+- [Orbit](https://github.com/iml885203/orbit) v0.7.0 or newer (only for the
   Orbit-managed path)
 
 There is no `pip install`; the demo uses Python's standard library only.
@@ -100,7 +100,7 @@ demo-shop
 ```
 
 To move from the demo to your own project, follow
-[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.6.0/docs/local-first.md).
+[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.7.0/docs/local-first.md).
 The local trial starts with one project-root `orbit.yaml`, exactly like this
 repository; it does not require an environment repository or persistent Orbit
 settings.

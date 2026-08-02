@@ -93,16 +93,16 @@ jobs:
           '
           python3 scripts/smoke.py
       - name: Install the paired Orbit preview
-        env:
-          ORBIT_VERSION: v0.5.0
         run: |
+          ORBIT_VERSION="$(jq -r '.version' .orbit-release.json)"
+          ORBIT_COMMIT="$(jq -r '.orbit_commit' .orbit-release.json)"
           if ! curl --fail --silent --show-error --location \
             --output /usr/local/bin/orbit \
             "https://github.com/iml885203/orbit/releases/download/${ORBIT_VERSION}/orbit-linux-amd64"; then
-            git clone --depth 1 --branch "$ORBIT_VERSION" \
-              https://github.com/iml885203/orbit.git orbit-source
+            git clone --filter=blob:none https://github.com/iml885203/orbit.git orbit-source
+            git -C orbit-source checkout "$ORBIT_COMMIT"
             pnpm --dir orbit-source/ui install --frozen-lockfile
-            make -C orbit-source build
+            make -C orbit-source VERSION="$ORBIT_VERSION" build
             cp orbit-source/bin/orbit /usr/local/bin/orbit
           fi
           chmod +x /usr/local/bin/orbit
