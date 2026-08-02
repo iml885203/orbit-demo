@@ -157,7 +157,39 @@ jobs:
                   time.sleep(0.2)
           PY
 
-          orbit up
+          if orbit up --json > "${{ runner.temp }}/occupied.json" 2>/dev/null; then
+            echo "orbit up unexpectedly accepted occupied declared ports" >&2
+            exit 1
+          fi
+          python3 - "${{ runner.temp }}/occupied.json" <<'PY'
+          import json
+          import sys
+
+          payload = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert payload["ok"] is False, payload
+          message = payload["error"]["message"]
+          assert any(port in message for port in ("26379", "28080", "28101", "28102", "28103")), message
+          PY
+
+          kill "$port_guard_pid" >/dev/null 2>&1 || true
+          wait "$port_guard_pid" 2>/dev/null || true
+          port_guard_pid=""
+          timeout 60 python3 - <<'PY'
+          import socket
+          import time
+
+          for port in (26379, 28080, 28101, 28102, 28103):
+              while True:
+                  probe = socket.socket()
+                  probe.settimeout(0.2)
+                  if probe.connect_ex(("127.0.0.1", port)) != 0:
+                      probe.close()
+                      break
+                  probe.close()
+                  time.sleep(0.2)
+          PY
+
+          orbit up --json > "${{ runner.temp }}/up.json"
           orbit status --json > "${{ runner.temp }}/status.json"
           python3 - "${{ runner.temp }}" <<'PY'
           import json
