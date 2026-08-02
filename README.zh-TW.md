@@ -11,7 +11,7 @@ database，以及一個 Redis container。它是
 
 - Python 3
 - Docker
-- [Orbit](https://github.com/iml885203/orbit) v0.5.0 或更新版本（只有
+- [Orbit](https://github.com/iml885203/orbit) v0.6.0 或更新版本（只有
   Orbit 管理的路徑需要）
 
 不需要 `pip install`；demo 只使用 Python 標準函式庫。
@@ -96,7 +96,7 @@ demo-shop
 ```
 
 要從 demo 套用到自己的專案，請接著閱讀
-[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.5.0/docs/local-first.zh-TW.md)。
+[在自己的專案使用 Orbit](https://github.com/iml885203/orbit/blob/v0.6.0/docs/local-first.zh-TW.md)。
 本機試用和這個 repo 一樣，只從 project-root `orbit.yaml` 開始，不需要
 environment repository 或永久 Orbit settings。
 
