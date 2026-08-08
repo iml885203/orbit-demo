@@ -65,6 +65,8 @@ python3 scripts/smoke.py
 
 - `orbit.yaml`：Orbit 管理路徑使用的環境拓樸。
 - `apps/`：frontend 與三個 API，只用標準函式庫。
+- `envs/`：同一個環境的 `orbit init` quickstart 打包——由
+  `scripts/sync-quickstart.sh` 產生，不手動編輯。
 - `scripts/run-local.sh`：不透過 Orbit 啟動全部服務。
 - `scripts/smoke.py`：可重複執行的 smoke journey。
 

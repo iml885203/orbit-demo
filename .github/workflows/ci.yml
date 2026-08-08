@@ -26,6 +26,15 @@ jobs:
       - uses: pnpm/action-setup@v6
         with:
           version: 11.8.0
+      - name: Verify the quickstart packaging is regenerated
+        run: |
+          ./scripts/sync-quickstart.sh
+          if [ -n "$(git status --porcelain -- envs)" ]; then
+            echo "envs/ is out of date; run scripts/sync-quickstart.sh and commit" >&2
+            git status --porcelain -- envs >&2
+            git diff -- envs >&2
+            exit 1
+          fi
       - name: Validate sources
         run: |
           python3 - <<'PY'
