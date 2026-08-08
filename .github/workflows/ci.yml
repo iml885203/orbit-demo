@@ -50,14 +50,11 @@ jobs:
           page = Page()
           page.feed(Path("apps/index.html").read_text())
           required = {
-              "run-success",
-              "run-failure",
               "status",
-              "result",
-              "attempt",
-              "stock-change",
-              "reservation-change",
-              "order-change",
+              "message",
+              "products",
+              "orders-list",
+              "restock",
               "adopt-project",
           }
           assert required <= page.ids, required - page.ids

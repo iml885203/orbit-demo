@@ -8,365 +8,129 @@
     :root {
       color-scheme: dark;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-      background: #080b12;
-      color: #f3f5fb;
-      --surface: rgba(18, 23, 35, .92);
+      --surface: #121723;
       --border: #293247;
       --muted: #9ba6ba;
-      --accent: #a9b8ff;
       --good: #6ee7b7;
       --bad: #ff8c9a;
     }
-
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 12% 0, rgba(92, 116, 226, .25), transparent 34rem),
-        radial-gradient(circle at 92% 22%, rgba(52, 184, 141, .12), transparent 30rem),
-        #080b12;
-    }
-    button { font: inherit; cursor: pointer; }
-    button:disabled { cursor: wait; opacity: .6; }
-    code { color: #d6ddff; }
+    body { margin: 0; min-height: 100vh; background: #080b12; color: #f3f5fb; }
+    .shell { width: min(860px, calc(100% - 32px)); margin: auto; padding: 48px 0 64px; }
 
-    .shell {
-      width: min(1080px, calc(100% - 32px));
-      margin: auto;
-      padding: 56px 0 72px;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-    .eyebrow {
-      margin: 0 0 12px;
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    h1 {
-      max-width: 760px;
-      margin: 0;
-      font-size: clamp(40px, 7vw, 72px);
-      line-height: .98;
-      letter-spacing: -.055em;
-    }
-    .lede {
-      max-width: 700px;
-      margin: 20px 0 0;
-      color: #b7c0d1;
-      font-size: 18px;
-      line-height: 1.65;
-    }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    h1 { margin: 0; font-size: 28px; letter-spacing: -.02em; }
     .status {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      min-height: 40px;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 750;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 700;
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffc86a; }
-    .status.ready { color: var(--good); border-color: rgba(110, 231, 183, .4); }
+    .status.ready { color: var(--good); }
     .status.ready .dot { background: var(--good); }
-    .status.error { color: var(--bad); border-color: rgba(255, 140, 154, .4); }
+    .status.error { color: var(--bad); }
     .status.error .dot { background: var(--bad); }
 
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr);
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-    .panel {
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: var(--surface);
-      box-shadow: 0 30px 90px rgba(0, 0, 0, .24);
-    }
-    .action {
-      padding: clamp(28px, 5vw, 48px);
-      background:
-        linear-gradient(145deg, rgba(102, 126, 238, .16), transparent 56%),
-        var(--surface);
-    }
-    h2 { margin: 0; font-size: clamp(28px, 4vw, 43px); letter-spacing: -.035em; }
-    .action > p { max-width: 580px; color: #b7c0d1; line-height: 1.65; }
-    .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; }
-    .primary, .secondary {
-      min-height: 48px;
-      padding: 0 19px;
-      border-radius: 12px;
-      font-weight: 800;
-    }
-    .primary { border: 0; background: #e8ecff; color: #111728; }
-    .secondary { border: 1px solid #3a4660; background: #171e2b; color: #e5e9f2; }
-    .primary:hover:not(:disabled) { background: white; transform: translateY(-1px); }
-    .secondary:hover:not(:disabled) { border-color: #5b6986; }
-    .hint { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
-
-    .flow { padding: 27px; }
-    .flow h2 { font-size: 18px; letter-spacing: -.01em; }
-    .step {
-      position: relative;
-      display: grid;
-      grid-template-columns: 38px 1fr;
-      gap: 13px;
-      min-height: 88px;
-      padding-top: 20px;
-    }
-    .step:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      top: 58px;
-      bottom: 0;
-      left: 18px;
-      width: 1px;
-      background: var(--border);
-    }
-    .index {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      place-items: center;
-      width: 38px;
-      height: 38px;
-      border: 1px solid #3a4660;
-      border-radius: 50%;
-      background: #121825;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 800;
-    }
-    .step.done .index { color: var(--good); border-color: rgba(110, 231, 183, .5); }
-    .step.active .index { color: var(--accent); border-color: rgba(169, 184, 255, .6); }
-    .step.failed .index { color: var(--bad); border-color: rgba(255, 140, 154, .55); }
-    .step strong { display: block; margin: 7px 0 5px; font-size: 15px; }
-    .step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
-
-    .result {
-      display: none;
-      grid-template-columns: auto 1fr;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 18px;
-      padding: 21px 24px;
-    }
-    .result.visible { display: grid; }
-    .result.success { border-color: rgba(110, 231, 183, .42); }
-    .result.failure { border-color: rgba(255, 140, 154, .46); }
-    .result-icon {
-      display: grid;
-      place-items: center;
-      width: 48px;
-      height: 48px;
-      border-radius: 15px;
-      background: #192131;
-      font-size: 22px;
-    }
-    .result strong { display: block; margin-bottom: 5px; font-size: 17px; }
-    .result p { margin: 0; color: var(--muted); line-height: 1.5; }
-
-    .attempt {
-      display: none;
-      margin-bottom: 18px;
-      padding: 23px 24px;
-    }
-    .attempt.visible { display: block; }
-    .attempt-heading, .evidence-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 18px;
-      margin-bottom: 16px;
-    }
-    .attempt-heading .eyebrow, .evidence-heading .eyebrow { margin: 0 0 5px; }
-    .attempt-heading h2, .evidence-heading h2 { font-size: 21px; letter-spacing: -.02em; }
-    .attempt-heading p, .evidence-heading p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
+    .message {
+      display: none; margin-top: 20px; padding: 14px 18px;
+      border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
       line-height: 1.5;
     }
-    .attempt-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .metric {
-      padding: 15px 17px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(10, 14, 23, .58);
-    }
-    .metric span {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-    }
-    .metric strong { font-size: 20px; }
-    .metric.unchanged strong { color: var(--good); }
+    .message.visible { display: block; }
+    .message.success { border-color: rgba(110, 231, 183, .45); }
+    .message.failure { border-color: rgba(255, 140, 154, .5); }
+    .message code { color: #d6ddff; }
 
-    .evidence-heading { align-items: start; margin: 2px 2px 13px; }
-    .evidence-heading > p { max-width: 500px; text-align: right; }
-    .evidence {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
+    .products { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+    .card {
+      padding: 20px; border: 1px solid var(--border); border-radius: 16px;
+      background: var(--surface);
     }
-    .evidence article {
-      min-height: 148px;
-      padding: 20px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(16, 21, 32, .82);
+    .card h2 { margin: 0 0 6px; font-size: 19px; }
+    .card .desc { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .card .row { display: flex; justify-content: space-between; align-items: center; }
+    .price { font-size: 17px; font-weight: 800; }
+    .stock { color: var(--muted); font-size: 13px; }
+    .stock.out { color: var(--bad); }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    .buy {
+      margin-top: 14px; width: 100%; min-height: 42px;
+      border: 0; border-radius: 10px; background: #e8ecff; color: #111728; font-weight: 800;
     }
-    .evidence span {
-      display: block;
-      margin-bottom: 16px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .09em;
-      text-transform: uppercase;
+    .buy:hover:not(:disabled) { background: white; }
+
+    .orders { margin-top: 28px; }
+    .orders-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .orders h2 { margin: 0; font-size: 17px; }
+    .orders-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .restock {
+      min-height: 34px; padding: 0 14px; border: 1px solid #3a4660; border-radius: 9px;
+      background: #171e2b; color: #e5e9f2; font-weight: 700; font-size: 13px;
     }
-    .evidence strong { display: block; margin-bottom: 7px; font-size: 18px; }
-    .evidence p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .orders ul { margin: 12px 0 0; padding: 0; list-style: none; }
+    .orders li {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 11px 16px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); margin-bottom: 8px; font-size: 14px;
+    }
+    .orders li span { color: var(--muted); }
+    .orders .empty { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
     details {
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(16, 21, 32, .78);
+      margin-top: 28px; border: 1px solid var(--border); border-radius: 12px;
+      background: var(--surface);
     }
-    summary { padding: 18px 21px; cursor: pointer; font-weight: 750; }
-    .topology { padding: 0 21px 21px; color: var(--muted); line-height: 1.75; }
-    .next-step {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      margin-top: 18px;
-      padding: 24px;
-    }
-    .next-step h2 { margin-bottom: 7px; font-size: 21px; }
-    .next-step p { margin: 0; color: var(--muted); line-height: 1.55; }
-    .next-step a {
-      flex: 0 0 auto;
-      min-height: 48px;
-      padding: 13px 19px;
-      border-radius: 12px;
-      background: #e8ecff;
-      color: #111728;
-      font-weight: 800;
-      text-decoration: none;
-    }
-    .next-step a:hover { background: white; transform: translateY(-1px); }
+    summary { padding: 14px 18px; cursor: pointer; font-weight: 700; font-size: 14px; }
+    details div { padding: 0 18px 16px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+    details code { color: #d6ddff; }
+    .adopt { margin-top: 20px; color: var(--muted); font-size: 14px; }
+    .adopt a { color: #a9b8ff; }
 
-    @media (max-width: 760px) {
-      .shell { padding-top: 34px; }
+    @media (max-width: 640px) {
       header { display: block; }
-      .status { width: max-content; margin-top: 22px; }
-      .hero, .evidence, .attempt-metrics { grid-template-columns: 1fr; }
-      .attempt-heading, .evidence-heading { display: block; }
-      .attempt-heading > p, .evidence-heading > p {
-        margin-top: 7px;
-        text-align: left;
-      }
-      .next-step { display: block; }
-      .next-step a { display: inline-block; margin-top: 18px; }
+      .status { width: max-content; margin-top: 14px; }
+      .products { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <main class="shell">
     <header>
-      <div>
-        <p class="eyebrow">Orbit mini-shop</p>
-        <h1>One action. Five local resources.</h1>
-        <p class="lede">Orbit started host-side services, waited for their dependencies, connected a Redis container, and selected working ports. Try the business flow—not the setup.</p>
-      </div>
+      <h1>Orbit mini-shop</h1>
       <div class="status" id="status"><span class="dot"></span><span id="status-text">Checking the stack</span></div>
     </header>
 
-    <section class="hero">
-      <div class="panel action">
-        <p class="eyebrow">Primary journey</p>
-        <h2>Checkout an Orbit Mug</h2>
-        <p>The order API reads the product from catalog, asks inventory to reserve stock, then commits an order linked to that reservation.</p>
-        <div class="buttons">
-          <button class="primary" id="run-success">Run checkout</button>
-          <button class="secondary" id="run-failure">Try 99 items</button>
+    <div class="message" id="message"></div>
+
+    <section class="products" id="products"></section>
+
+    <section class="orders">
+      <div class="orders-head">
+        <div>
+          <h2>Orders</h2>
+          <p>Stored in SQLite on your host — they survive <code>orbit down</code> and <code>orbit up</code>.</p>
         </div>
-        <p class="hint">The failure path should reserve nothing and create no order.</p>
+        <button class="restock" id="restock">Restock</button>
       </div>
-      <div class="panel flow">
-        <h2>What crosses the stack</h2>
-        <div class="step" id="step-catalog"><span class="index">1</span><div><strong>Read product</strong><p id="step-catalog-detail">Catalog API + SQLite</p></div></div>
-        <div class="step" id="step-inventory"><span class="index">2</span><div><strong>Reserve stock</strong><p id="step-inventory-detail">Inventory API + SQLite + Redis</p></div></div>
-        <div class="step" id="step-order"><span class="index">3</span><div><strong>Commit order</strong><p id="step-order-detail">Order API + SQLite</p></div></div>
-      </div>
-    </section>
-
-    <section class="panel result" id="result">
-      <div class="result-icon" id="result-icon">✓</div>
-      <div><strong id="result-title"></strong><p id="result-detail"></p></div>
-    </section>
-
-    <section class="panel attempt" id="attempt">
-      <div class="attempt-heading">
-        <div><p class="eyebrow">Last attempt</p><h2 id="attempt-title">Transaction evidence</h2></div>
-        <p id="attempt-detail">Measured from the APIs before and after checkout.</p>
-      </div>
-      <div class="attempt-metrics">
-        <div class="metric" id="stock-metric"><span>Available stock</span><strong id="stock-change">—</strong></div>
-        <div class="metric" id="reservation-metric"><span>New reservations</span><strong id="reservation-change">—</strong></div>
-        <div class="metric" id="order-metric"><span>New orders</span><strong id="order-change">—</strong></div>
-      </div>
-    </section>
-
-    <div class="evidence-heading">
-      <div><p class="eyebrow">Durable state</p><h2>What still exists</h2></div>
-      <p>Reloaded from inventory and orders. A rejected attempt cannot erase an earlier checkout.</p>
-    </div>
-    <section class="evidence">
-      <article><span>Product</span><strong id="product">Orbit Mug</strong><p id="product-detail">Waiting for catalog</p></article>
-      <article><span>Latest reservation</span><strong id="reservation">None yet</strong><p id="reservation-detail">Run checkout to create one</p></article>
-      <article><span>Latest order</span><strong id="order">None yet</strong><p id="order-detail">Run checkout to link the records</p></article>
+      <ul id="orders-list"></ul>
+      <p class="empty" id="orders-empty">No orders yet. Buy something above.</p>
     </section>
 
     <details>
-      <summary>See what Orbit is coordinating</summary>
-      <div class="topology">
-        <code>demo-shop</code> → <code>shop-order-api</code> → <code>shop-catalog-api</code> + <code>shop-inventory-api</code> → <code>redis</code><br>
-        All four applications run on your host. Redis runs in Docker. The three APIs keep their own SQLite state, and Orbit injects every runtime endpoint from the dependency graph.
+      <summary>How a purchase flows</summary>
+      <div>
+        Buy → <code>demo-shop</code> → <code>shop-order-api</code>, which reads the product from
+        <code>shop-catalog-api</code>, takes stock from <code>shop-inventory-api</code>
+        (live stock lives in the <code>redis</code> container), then saves the order in SQLite.<br>
+        Orbit started all five in dependency order and injected every service URL.
+        Try <code>orbit down shop-inventory-api</code>, buy again, then bring it back with
+        <code>orbit up shop-inventory-api</code>.
       </div>
     </details>
 
-    <section class="panel next-step">
-      <div>
-        <p class="eyebrow">Use it with your project</p>
-        <h2>Start with one orbit.yaml</h2>
-        <p>No environment repository or persistent setup is required for the local trial.</p>
-      </div>
-      <a id="adopt-project" href="https://github.com/iml885203/orbit/blob/v0.7.0/docs/local-first.md">Open the 10-minute guide</a>
-    </section>
+    <p class="adopt">Ready for your own project? Start with one <code>orbit.yaml</code> —
+      <a id="adopt-project" href="https://github.com/iml885203/orbit/blob/main/docs/local-first.md">read the 10-minute guide</a>.</p>
   </main>
 
   <script>
@@ -376,187 +140,112 @@
       order: "{{ORDER_URL}}"
     };
     const $ = (id) => document.getElementById(id);
-    const buttons = [$("run-success"), $("run-failure")];
-    const stepDefaults = {
-      catalog: "Catalog API + SQLite",
-      inventory: "Inventory API + SQLite + Redis",
-      order: "Order API + SQLite"
-    };
+    let busy = false;
 
     async function json(url, options) {
       const response = await fetch(url, options);
       const payload = await response.json();
-      if (!response.ok) throw Object.assign(new Error(payload.error || "request failed"), { payload });
-      return payload;
+      return {ok: response.ok, payload};
     }
 
-    async function snapshot() {
-      const [inventory, orders] = await Promise.all([
-        json(`${endpoints.inventory}/state`),
-        json(`${endpoints.order}/state`)
-      ]);
-      return {inventory, orders};
+    function showMessage(kind, html) {
+      $("message").className = `message visible ${kind}`;
+      $("message").innerHTML = html;
     }
 
-    function available(state) {
-      return state.inventory.stock.find((item) => item.product_id === 1).available;
+    function renderProducts(products, stock) {
+      const byProduct = new Map(stock.map((item) => [item.product_id, item.available]));
+      $("products").innerHTML = products.map((product) => {
+        const available = byProduct.get(product.id) ?? 0;
+        const out = available <= 0;
+        return `<article class="card">
+          <h2>${product.name}</h2>
+          <p class="desc">${product.description}</p>
+          <div class="row">
+            <span class="price">$${product.price}</span>
+            <span class="stock${out ? " out" : ""}">${out ? "Sold out" : `${available} in stock`}</span>
+          </div>
+          <button class="buy" data-id="${product.id}" ${out || busy ? "disabled" : ""}>
+            ${out ? "Sold out — restock below" : "Buy 1"}
+          </button>
+        </article>`;
+      }).join("");
     }
 
-    function renderDurable(state) {
-      const latestOrder = state.orders.orders.at(-1);
-      if (!latestOrder) {
-        $("reservation").textContent = "None yet";
-        $("reservation-detail").textContent = `${available(state)} items currently available`;
-        $("order").textContent = "None yet";
-        $("order-detail").textContent = "Run checkout to link the records";
-        return;
-      }
-      const reservation = state.inventory.reservations.find(
-        (item) => item.id === latestOrder.reservation_id
-      );
-      $("reservation").textContent = `Reservation #${latestOrder.reservation_id}`;
-      $("reservation-detail").textContent = reservation
-        ? `${reservation.quantity} item reserved · ${available(state)} available now`
-        : `${available(state)} items currently available`;
-      $("order").textContent = `Order #${latestOrder.id}`;
-      $("order-detail").textContent = `Persisted · linked to reservation #${latestOrder.reservation_id}`;
+    function renderOrders(orders) {
+      const items = [...orders].reverse();
+      $("orders-empty").style.display = items.length ? "none" : "block";
+      $("orders-list").innerHTML = items.map((order) =>
+        `<li><strong>Order #${order.id}</strong>
+          <span>${order.quantity} × ${order.product_name} · $${order.total}</span></li>`
+      ).join("");
     }
 
-    function renderAttempt(before, after, quantity, accepted) {
-      const stockBefore = available(before);
-      const stockAfter = available(after);
-      const reservationsAdded =
-        after.inventory.reservations.length - before.inventory.reservations.length;
-      const ordersAdded = after.orders.orders.length - before.orders.orders.length;
-
-      $("attempt").className = "panel attempt visible";
-      $("attempt-title").textContent = accepted
-        ? `${quantity} item checkout committed`
-        : `${quantity} item checkout rejected`;
-      $("attempt-detail").textContent = accepted
-        ? "The reservation and order were both persisted."
-        : "Insufficient stock was rejected before either write.";
-      $("stock-change").textContent = `${stockBefore} → ${stockAfter}`;
-      $("reservation-change").textContent = `+${reservationsAdded}`;
-      $("order-change").textContent = `+${ordersAdded}`;
-      ["stock", "reservation", "order"].forEach((name) => {
-        $(`${name}-metric`).className = "metric";
-      });
-      if (!accepted) {
-        ["stock", "reservation", "order"].forEach((name) => {
-          $(`${name}-metric`).className = "metric unchanged";
-        });
-      }
-    }
-
-    function renderAttemptPending(quantity) {
-      $("attempt").className = "panel attempt visible";
-      $("attempt-title").textContent = `${quantity} item checkout in progress`;
-      $("attempt-detail").textContent = "Measuring this attempt before and after checkout.";
-      ["stock", "reservation", "order"].forEach((name) => {
-        $(`${name}-metric`).className = "metric";
-      });
-      $("stock-change").textContent = "Checking…";
-      $("reservation-change").textContent = "Checking…";
-      $("order-change").textContent = "Checking…";
-    }
-
-    function renderAttemptUnavailable(quantity) {
-      const requestedAt = new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-      $("attempt").className = "panel attempt visible";
-      $("attempt-title").textContent = "Checkout unavailable";
-      $("attempt-detail").textContent =
-        `${quantity} item requested at ${requestedAt}. The outcome could not be confirmed, so no deltas are claimed.`;
-      ["stock", "reservation", "order"].forEach((name) => {
-        $(`${name}-metric`).className = "metric unchanged";
-      });
-      $("stock-change").textContent = "Unknown";
-      $("reservation-change").textContent = "Unknown";
-      $("order-change").textContent = "Unknown";
-    }
-
-    async function readiness() {
+    async function refresh() {
       try {
-        const [catalog, inventory, order] = await Promise.all(
-          Object.values(endpoints).map((url) => json(`${url}/health`))
-        );
-        if (![catalog, inventory, order].every((item) => item.ok)) throw new Error("not ready");
+        const [products, stock, orders] = await Promise.all([
+          json(`${endpoints.catalog}/products`),
+          json(`${endpoints.inventory}/stock`),
+          json(`${endpoints.order}/orders`)
+        ]);
+        renderProducts(products.payload.products, stock.payload.stock);
+        renderOrders(orders.payload.orders);
         $("status").className = "status ready";
-        $("status-text").textContent = "5 resources ready";
-        const products = await json(`${endpoints.catalog}/products`);
-        const mug = products.products[0];
-        $("product").textContent = mug.name;
-        $("product-detail").textContent = `$${mug.price} · stored in catalog SQLite`;
-        renderDurable(await snapshot());
+        $("status-text").textContent = "All 5 resources ready";
       } catch (error) {
         $("status").className = "status error";
-        $("status-text").textContent = "A dependency needs attention";
+        $("status-text").textContent = "A service is down — run orbit status";
       }
     }
 
-    function resetFlow() {
-      ["catalog", "inventory", "order"].forEach((name) => {
-        $(`step-${name}`).className = "step";
-        $(`step-${name}-detail`).textContent = stepDefaults[name];
-      });
-      $("result").className = "panel result";
-      buttons.forEach((button) => button.disabled = true);
-    }
-
-    async function checkout(quantity) {
-      resetFlow();
-      renderAttemptPending(quantity);
-      $("step-catalog").className = "step active";
+    async function buy(productId) {
+      busy = true;
       try {
-        const before = await snapshot();
-        const response = await fetch(`${endpoints.order}/checkout`, {
+        const {ok, payload} = await json(`${endpoints.order}/checkout`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({product_id: 1, quantity})
+          body: JSON.stringify({product_id: productId, quantity: 1})
         });
-        const payload = await response.json();
-        const after = await snapshot();
-        $("step-catalog").className = "step done";
-        if (!response.ok) {
-          $("step-inventory").className = "step failed";
-          $("step-inventory-detail").textContent = "Rejected: insufficient stock";
-          $("step-order-detail").textContent = "Skipped · nothing committed";
-          $("result").className = "panel result visible failure";
-          $("result-icon").textContent = "!";
-          $("result-title").textContent = "Checkout stopped safely";
-          $("result-detail").textContent = `${payload.error}. No new reservation or order was created.`;
-          renderAttempt(before, after, quantity, false);
-          renderDurable(after);
-          await readiness();
-          return;
+        if (ok) {
+          showMessage("success",
+            `<strong>Order #${payload.id} confirmed</strong> — ` +
+            `${payload.quantity} × ${payload.product.name} for $${payload.total}. ` +
+            `${payload.remaining} left in stock.`);
+        } else {
+          showMessage("failure", `<strong>Checkout rejected</strong> — ${payload.error}.`);
         }
-        $("step-inventory").className = "step done";
-        $("step-order").className = "step done";
-        $("result").className = "panel result visible success";
-        $("result-icon").textContent = "✓";
-        $("result-title").textContent = `Order #${payload.id} confirmed`;
-        $("result-detail").textContent = `${payload.quantity} × ${payload.product.name} · $${payload.total}`;
-        renderAttempt(before, after, quantity, true);
-        renderDurable(after);
-        await readiness();
       } catch (error) {
-        renderAttemptUnavailable(quantity);
-        $("result").className = "panel result visible failure";
-        $("result-icon").textContent = "!";
-        $("result-title").textContent = "A service did not respond";
-        $("result-detail").innerHTML = "Run <code>orbit status</code>. Orbit will name the blocked service and the next recovery command.";
-        await readiness();
+        showMessage("failure",
+          "<strong>A service did not respond.</strong> " +
+          "Run <code>orbit status</code> to see which one, then bring it back with <code>orbit up</code>.");
       } finally {
-        buttons.forEach((button) => button.disabled = false);
+        busy = false;
+        await refresh();
       }
     }
 
-    $("run-success").addEventListener("click", () => checkout(1));
-    $("run-failure").addEventListener("click", () => checkout(99));
-    readiness();
+    async function restock() {
+      busy = true;
+      try {
+        await json(`${endpoints.inventory}/restock`, {method: "POST"});
+        showMessage("success", "<strong>Restocked.</strong> Every product is back in stock.");
+      } catch (error) {
+        showMessage("failure",
+          "<strong>Inventory did not respond.</strong> Run <code>orbit status</code> to see what is down.");
+      } finally {
+        busy = false;
+        await refresh();
+      }
+    }
+
+    $("products").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-id]");
+      if (button && !busy) buy(Number(button.dataset.id));
+    });
+    $("restock").addEventListener("click", () => { if (!busy) restock(); });
+
+    refresh();
+    setInterval(refresh, 4000);
   </script>
 </body>
 </html>

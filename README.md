@@ -1,18 +1,24 @@
 # Orbit mini-shop demo
 
-A small, self-contained shop application: one browser app, three Python APIs,
-three SQLite databases, and a Redis container. It is the public demo for
-[Orbit](https://github.com/iml885203/orbit), yet the application itself has no
+A deliberately tiny shop: two products, a **Buy** button, a stock count, and an
+order list. Products live in code, live stock lives in a Redis container, and
+orders persist in SQLite on your host. It is the public demo for
+[Orbit](https://github.com/iml885203/orbit), yet the application has no
 dependency on Orbit — every service is plain Python standard library,
 configured through ordinary environment variables with localhost defaults.
-You can start the runtimes by hand, or let Orbit orchestrate them.
+
+```text
+demo-shop (browser app)
+  └─ shop-order-api ── SQLite (orders persist)
+       ├─ shop-catalog-api      (products, in code)
+       └─ shop-inventory-api ── redis container (live stock)
+```
 
 ## Requirements
 
 - Python 3
 - Docker
-- [Orbit](https://github.com/iml885203/orbit) v0.7.0 or newer (only for the
-  Orbit-managed path)
+- [Orbit](https://github.com/iml885203/orbit) (only for the Orbit-managed path)
 
 There is no `pip install`; the demo uses Python's standard library only.
 
@@ -25,18 +31,27 @@ orbit up
 orbit open demo-shop
 ```
 
-Orbit reads the project-root `orbit.yaml`, starts the APIs in dependency
-order, injects their actual runtime URLs, and keeps the whole graph working
-if preferred ports are occupied. The application code never duplicates those
-selected ports.
+Orbit reads the project-root `orbit.yaml`, starts the container and the four
+host services in dependency order, waits for real readiness, and injects every
+service URL.
 
-Useful follow-up commands:
+## The two-minute journey
+
+1. **Buy a mug.** The order crosses the whole graph — catalog for the product,
+   inventory for stock, SQLite for the order — and shows up in the order list.
+2. **Buy until it sells out.** The rejected checkout changes nothing; hit
+   **Restock** to refill.
+3. **Break something.** Run `orbit down shop-inventory-api`, buy again, and the
+   page tells you a service is down. `orbit status` names it; watch a request
+   fail with `orbit logs shop-order-api`.
+4. **Recover.** Run `orbit up shop-inventory-api` and buy again. Orders made
+   earlier are still there — SQLite lives on your host, so they even survive a
+   full `orbit down` / `orbit up`.
+
+With the stack running, the same journey is scripted:
 
 ```bash
-orbit status
-orbit doctor
-orbit logs shop-order-api
-orbit down
+python3 scripts/smoke.py
 ```
 
 ## Run without Orbit
@@ -47,63 +62,19 @@ orbit down
 
 The script starts Redis in Docker and the four services on their default
 ports, then serves the shop at <http://127.0.0.1:28080>. Ctrl-C stops
-everything. Equivalently, run each piece yourself:
-
-```bash
-docker run -d --name mini-shop-redis -p 26379:6379 redis:7.4-alpine
-python3 apps/catalog.py &
-python3 apps/inventory.py &
-python3 apps/orders.py &
-python3 apps/web.py &
-```
-
-## The demo journey
-
-Choose **Run checkout**. The page shows the product loaded from catalog, the
-stock reservation created by inventory, and the order linked to that
-reservation. **Try 99 items** measures stock and record counts before and
-after the rejected attempt: stock stays unchanged, new reservations and orders
-both remain `+0`, and the earlier successful order remains visible.
-
-If a dependency stops responding, a new click replaces the previous attempt
-with **Checkout unavailable** instead of reusing stale success evidence. The
-page keeps the last confirmed order under **Durable state**, marks the stack as
-needing attention, and returns to ready after the dependency recovers and the
-next checkout succeeds.
-
-With the stack running (either way), verify the complete business path:
-
-```bash
-python3 scripts/smoke.py
-```
-
-The smoke script reads the service URLs from `DEMO_SHOP_URL`,
-`SHOP_CATALOG_API_URL`, `SHOP_INVENTORY_API_URL`, and `SHOP_ORDER_API_URL`,
-falling back to the default local ports.
+everything.
 
 ## What the repository contains
 
 - `orbit.yaml`: the environment graph for the Orbit-managed path.
-- `apps/`: the frontend and APIs, implemented with Python's standard library.
+- `apps/`: the frontend and the three APIs, standard library only.
 - `scripts/run-local.sh`: start everything without Orbit.
 - `scripts/smoke.py`: the repeatable smoke journey.
 
-The topology is:
-
-```text
-demo-shop
-  ├─ shop-catalog-api ─ SQLite
-  ├─ shop-inventory-api ─ SQLite + Redis
-  └─ shop-order-api
-       ├─ shop-catalog-api
-       └─ shop-inventory-api
-```
-
 To move from the demo to your own project, follow
-[Use Orbit with your project](https://github.com/iml885203/orbit/blob/v0.7.0/docs/local-first.md).
+[Use Orbit with your project](https://github.com/iml885203/orbit/blob/main/docs/local-first.md).
 The local trial starts with one project-root `orbit.yaml`, exactly like this
-repository; it does not require an environment repository or persistent Orbit
-settings.
+repository.
 
 ## License
 
